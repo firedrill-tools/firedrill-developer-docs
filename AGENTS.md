@@ -11,7 +11,9 @@ This is a Mintlify documentation site. Pages are MDX with YAML frontmatter; site
 - Never document a planned feature as available. Label release candidates, previews, and unpublished packages clearly.
 - Never present an example Tool, vendor, agent type, or fixture as the product model.
 - Demo delivery is v2 and must not appear as a current capability.
-- Use `firedrill.run` for every Firedrill-owned domain.
+- Use `https://docs.firedrill.run` for published documentation links. Keep
+  `https://firedrill.run` for the product site and the existing `api.`, `app.`,
+  and other service subdomains for their respective products.
 - Do not mention competitors, private planning, research provenance, or internal implementation discussions.
 
 ## Terminology
