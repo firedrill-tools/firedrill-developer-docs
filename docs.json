@@ -3,6 +3,11 @@
   "theme": "mint",
   "name": "Firedrill",
   "description": "Stateful simulation and testing for action-taking AI agents",
+  "seo": {
+    "metatags": {
+      "canonical": "https://docs.firedrill.run"
+    }
+  },
   "colors": {
     "primary": "#3157D5",
     "light": "#5272DE",

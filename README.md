@@ -1,6 +1,7 @@
 # Firedrill documentation
 
-Developer documentation for [Firedrill](https://firedrill.run), built with Mintlify.
+Developer documentation for [Firedrill](https://firedrill.run), published at
+[docs.firedrill.run](https://docs.firedrill.run) with Mintlify.
 
 ## Preview locally
 
