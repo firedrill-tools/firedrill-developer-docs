@@ -1,0 +1,60 @@
+---
+title: "Run drills in CI"
+description: "Run deterministic behavioral checks, publish JUnit, and retain reports without interactive prompts."
+---
+
+Firedrill runs inside the CI system you already use. The CLI returns stable exit codes, emits machine-readable JSON, and writes JUnit and self-contained HTML reports.
+
+## Run a bounded suite
+
+```bash
+firedrill validate --json
+firedrill run --suite safety --seed 42 --json
+```
+
+Use a fixed seed for a deterministic safety gate. Use trials when you intentionally want to measure stochastic agent behavior, and preserve every attempt rather than averaging away failures.
+
+## Select and parallelize work
+
+```bash
+firedrill run --tag critical --shard 1/4
+firedrill run --tag critical --shard 2/4
+firedrill run --tag critical --shard 3/4
+firedrill run --tag critical --shard 4/4
+```
+
+Sharding is deterministic for the same selected drill set. Within a job, `--concurrency` controls how many isolated local trials run at once.
+
+## Upload readable artifacts
+
+Archive the selected project's `.firedrill/reports/` directory after the run. It contains:
+
+- a central `index.html` for all retained runs;
+- one self-contained HTML report per attempt;
+- `junit.xml` for CI test reporting;
+- JSON result and run metadata;
+- ordered JSONL evidence;
+- a manifest for integrity verification;
+- retained attachments allowed by the capture policy.
+
+```bash
+firedrill report verify .firedrill/reports/<run-id> --json
+```
+
+Report verification checks bundle integrity. It does not sign a local result or prove who produced it.
+
+## Keep CI non-interactive
+
+- Pass explicit `init` choices if setup happens in CI.
+- Use `--json` when another program reads output.
+- Provide model credentials through the agent job's secret mechanism, not Firedrill source.
+- Map only required host variables in command targets.
+- Never commit `.firedrill/` or upload it as a public artifact without reviewing its contents.
+
+## Gate safety differently from quality
+
+Use deterministic assertions for invariants that must always hold, such as “never write twice” or “never cross this permission boundary.” Use multiple trials and reported rates for stochastic quality questions. Do not present a small-sample rate as a precise guarantee.
+
+<Note>
+  Managed GitHub checks, durable history, shared evidence links, and attestation are Firedrill Cloud features and are currently in private preview. The local CLI and JUnit workflow remain complete without them.
+</Note>

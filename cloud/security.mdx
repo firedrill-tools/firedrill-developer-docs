@@ -1,0 +1,81 @@
+---
+title: "Security model"
+description: "Understand tenant boundaries, scoped credentials, Tool approval, evidence access, and data retention in Firedrill Cloud."
+---
+
+<Note>
+  Firedrill Cloud is in private preview. Security controls described here reflect
+  the implemented platform contract; preview availability is separately gated.
+</Note>
+
+Firedrill separates control-plane authority from world-plane access. Your agent
+needs access to its synthetic world, not to your organization, billing, source,
+or other sessions.
+
+## Credential boundaries
+
+| Credential | Used by | Scope |
+| --- | --- | --- |
+| Browser or CLI control session | Human or CLI | Revocable organization and project actions |
+| Developer credential | Developer automation | Selected actions, optional project, fixed expiry |
+| Service credential | CI or service automation | Selected actions, optional project, fixed expiry |
+| GitHub Actions credential | One verified workflow invocation | Exact CI repository and revision context |
+| World access binding | Agent runner | One session or run interaction, actor capabilities, short expiry |
+
+Control credentials use the Control API. World credentials use the HTTP, MCP, or
+wire endpoint in the binding. Never pass a control credential, callback signing
+key, or storage URL to the agent being evaluated.
+
+## Project authorization
+
+Organization membership and project access are separate. Project roles are
+`viewer`, `builder`, and `manager`, expanded by the server into explicit actions.
+Developer and service credentials can narrow those actions further and may be
+restricted to one project.
+
+Every read or mutation is authorized against the selected organization and project.
+Resource IDs alone do not grant access.
+
+## Isolated worlds
+
+Each session is pinned to one project, build, environment, seed, and lease. World
+access includes an actor ID and explicit Tool-operation capabilities. Reset and
+fork remain inside the selected project and exact build lineage.
+
+The hosted runner does not receive your agent's model-provider credentials. Your
+runner retains those and performs the agent interaction.
+
+## Tool trust
+
+Repository or uploaded builds may introduce executable Tool behavior. The platform
+records exact Tool artifacts and requires explicit project approval before newly
+introduced private artifacts can execute. Deprecation prevents new selection;
+revocation blocks affected execution paths.
+
+Tool declarations, apps, and fidelity claims are package-owned. Approval means
+the exact artifact may run in the project; it does not certify that it perfectly
+replicates an external service.
+
+## Evidence and captures
+
+Evidence access follows project grants and exact share decisions. Retention policy
+applies to new hosted runs. Deletion and export are explicit, auditable operations.
+Optional captures can contain application output or personal data; redact secrets
+before upload and retain only what a drill needs.
+
+Hosted evidence can carry a verification manifest and platform attestation. A local
+report uploaded for storage remains marked user-produced and unattested.
+
+## Operational safeguards
+
+- Unsafe writes require idempotency keys and optimistic concurrency where needed.
+- Long-running work returns an operation that can be polled after a timeout.
+- Audit history records organization and project changes.
+- Callback receivers require explicit registration and approval; signing material
+  is revealed only through its dedicated control path.
+- API errors include a correlation ID and whether the caller may retry.
+
+<Warning>
+  Do not place production secrets in world source, scenarios, browser-test messages,
+  agent output, captures, or evidence attachments.
+</Warning>

@@ -1,0 +1,74 @@
+---
+title: "Runs and retained evidence"
+description: "Run drills with a customer-owned agent, retain causal evidence, reproduce exact inputs, and compare outcomes."
+---
+
+<Note>
+  Firedrill Cloud is in private preview.
+</Note>
+
+A hosted drill run coordinates one drill against one exact world session. Firedrill
+runs the world and verifier. Your runner executes the agent.
+
+## Interaction lifecycle
+
+<Steps>
+  <Step title="Start from a drill-configured session">
+    The run pins the project, environment, build, session lease, drill, seed, trial,
+    attempt, and timeout.
+  </Step>
+  <Step title="Wait for an agent interaction">
+    When the world reaches an agent step, the run enters `awaiting_agent` and records
+    the task, actor, interaction ID, and run revision.
+  </Step>
+  <Step title="Issue scoped world access">
+    Your runner receives access for only that run, interaction, actor, and deadline.
+    It invokes the real agent through your existing entry point.
+  </Step>
+  <Step title="Return the actual target result">
+    Submit the agent's status and output, plus explicitly admitted captures. Do not
+    fabricate success from expected text.
+  </Step>
+  <Step title="Seal the result">
+    Firedrill settles pending world work, evaluates assertions from recorded state
+    and evidence, then retains the immutable result.
+  </Step>
+</Steps>
+
+## Evidence you can inspect
+
+- ordered Tool calls, events, callbacks, faults, and virtual-time activity;
+- state before and after the drill;
+- assertion expected/actual values and final verdict;
+- the pinned build, setup, seed, trial, and attempt;
+- caller-supplied logs, files, screenshots, or WebM recordings when enabled; and
+- operation and correlation identifiers for recovery.
+
+Captures are optional supporting evidence. They do not replace world assertions.
+The SDK does not intercept console output, take screenshots, or record video unless
+your runner explicitly provides those bytes or registers a capture driver.
+
+## Rerun and compare
+
+Rerun creates a new run from the original pinned inputs. It reproduces the world
+setup and seed, not arbitrary model output or an external application's hidden
+state.
+
+Comparison first reports whether the run inputs are compatible, then provides
+recorded differences in assertions, evidence, and state. A difference is factual;
+it is not automatically an improvement or regression.
+
+## Retention and sharing
+
+Organization retention policy applies to new hosted evidence. Authorized users can
+download verified manifests and artifacts, create bounded exports, or share one
+private run link. A recipient without access can request it; approval remains
+scoped to that exact run.
+
+Uploaded local reports remain labeled user-produced and unattested. Hosting an
+archive does not convert it into evidence of hosted execution.
+
+<Warning>
+  A queued run is not a passing run. Read the terminal run state and evaluated
+  assertions before reporting an outcome.
+</Warning>

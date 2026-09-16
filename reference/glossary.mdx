@@ -1,0 +1,82 @@
+---
+title: "Glossary"
+description: "Canonical definitions for Firedrill concepts and result terms."
+---
+
+## Core concepts
+
+<ResponseField name="Tool">
+  A synthetic dependency with typed operations, deterministic behavior, and optional state, faults, events, callbacks, custom routes, and browser UI.
+</ResponseField>
+
+<ResponseField name="World">
+  One isolated stateful environment containing Tools, records, actors, permissions, virtual time, faults, pending work, and an ordered journal.
+</ResponseField>
+
+<ResponseField name="Actor">
+  The runtime identity used to authorize and attribute Tool operations.
+</ResponseField>
+
+<ResponseField name="Persona">
+  Optional human-readable context about an actor. A persona does not grant permissions.
+</ResponseField>
+
+<ResponseField name="Scenario">
+  A reusable variation of starting data, actors, permissions, faults, events, Tool overrides, or virtual time.
+</ResponseField>
+
+<ResponseField name="Target">
+  The declared adapter that invokes the agent under test as a module, command, HTTP service, or caller-supplied callback.
+</ResponseField>
+
+<ResponseField name="Drill">
+  An executable behavioral test containing a task, target, starting conditions, actor, and assertions.
+</ResponseField>
+
+<ResponseField name="Suite">
+  A named group of drills, commonly used for CI selection or Tool conformance.
+</ResponseField>
+
+## Execution and evidence
+
+<ResponseField name="Build">
+  The normalized, immutable, content-addressed representation compiled from repository source and any explicit per-test setup.
+</ResponseField>
+
+<ResponseField name="Run">
+  One recorded execution of a drill selection. A run may contain several trials and retries.
+</ResponseField>
+
+<ResponseField name="Trial">
+  One attempt with its own isolated world, seed, agent interaction, assertions, and evidence.
+</ResponseField>
+
+<ResponseField name="Evidence">
+  The ordered record of calls, outcomes, state mutations, events, faults, callbacks, time changes, assertions, target output, and optional attachments.
+</ResponseField>
+
+<ResponseField name="Verdict">
+  The result of evaluating the drill's assertions. A target completing successfully does not by itself produce a passing verdict.
+</ResponseField>
+
+<ResponseField name="Reset">
+  Restoration of the full world or selected Tool packages to their declared starting state.
+</ResponseField>
+
+<ResponseField name="Reproduction">
+  Running the same immutable build and seed again to investigate a retained result.
+</ResponseField>
+
+## Interfaces
+
+<ResponseField name="Binding">
+  Short-lived connection values that let a declared actor use Tool operations through direct, HTTP, MCP, or CLI transport.
+</ResponseField>
+
+<ResponseField name="Tool app">
+  An optional browser interface bundled with a Tool and connected to the same state and operations as its backend.
+</ResponseField>
+
+<ResponseField name="Inspector">
+  The local interface for browsing Tools, state, scenarios, drills, runs, comparisons, evidence, and optional Tool apps.
+</ResponseField>

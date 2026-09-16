@@ -1,0 +1,41 @@
+---
+title: "Worlds and state"
+description: "Understand the isolated environment in which an agent acts."
+---
+
+A **world** is the isolated, stateful environment in which Tools, actors, time, events, and faults interact.
+
+## Shared consequences
+
+All Tools selected for one attempt share that attempt's SQLite-backed world. This lets a call to one Tool schedule an event, change data observed by another Tool, or affect a later assertion while preserving one causal order.
+
+The SQLite file is runtime state—not a representation of the agent's own production database. Repository files define the reproducible baseline. Tool calls mutate only the isolated runtime copy.
+
+## What the world contains
+
+- Tool-owned state namespaces and records
+- actors and operation grants
+- virtual clock and deterministic randomness
+- pending events and scheduled work
+- active faults and response overrides
+- callbacks and subscriptions
+- an append-only causal journal
+
+Every trial and retry receives its own world. Concurrent drills do not share mutations.
+
+## Baseline, scenario, and runtime state
+
+| Layer | Purpose | Changes source files? |
+| --- | --- | --- |
+| World baseline | Default Tools, records, actors, permissions, and time | Yes, when you edit the repository |
+| Scenario | Reusable variation for a starting condition | Yes, when you edit the scenario |
+| Per-test setup | Temporary data, faults, bindings, or behavior overrides | No |
+| Runtime state | Consequences produced by one attempt | No |
+
+## Read and control state
+
+The CLI and inspector expose the world through bounded, paginated views. The local TypeScript SDK can call operations, read state and evidence, advance virtual time, export a scenario, and perform full or Tool-scoped resets.
+
+<Card title="Control state and time" icon="clock" href="/guides/control-state-time">
+  Seed records, activate faults, advance the clock, and reset the world.
+</Card>

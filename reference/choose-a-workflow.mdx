@@ -1,0 +1,30 @@
+---
+title: "Choose a workflow"
+description: "Start with the shortest Firedrill path for the job you have now."
+---
+
+You do not need to learn every Firedrill concept before getting a useful synthetic backend. Choose the path that matches your immediate goal.
+
+| I want to… | Start with | What you get |
+| --- | --- | --- |
+| Give my agent controlled dependencies | [Start local Tools](/guides/start-local-tools) | A running backend, data, connection settings, and Inspector |
+| Test one agent behavior | [Run your first drill](/guides/run-first-drill) | A task, assertions, verdict, and reports |
+| Keep an existing test runner | [Local TypeScript SDK](/sdk/local-typescript) | `runDrills()`, per-test setup, and programmatic results |
+| Replace an imported function or SDK method | [Mock dependencies](/guides/mock-dependencies) | A `mockTool()` adapter for your runner's mock or spy |
+| Build a reusable fake dependency | [Create a Tool package](/guides/create-tool-package) | A portable Tool contract and conformance suite |
+| Exercise a visual agent or app | [Browser testing](/guides/browser-testing) | Playwright steps, screenshots, optional video, and world evidence |
+| Reproduce a failure | [Evidence and reset](/concepts/evidence-reset) | Exact build, seed, report verification, and reset semantics |
+| Let a coding agent set up Firedrill | [Coding-agent integration](/guides/coding-agents) | A stable MCP surface and repository skill |
+
+## Two valid entry points
+
+<Tabs>
+  <Tab title="Start with Tools">
+    Use `firedrill init` and `firedrill serve` when you first need a safe dependency. Inspect operations and data, then connect the agent. Add a scenario or drill only when you need repeatability or a verdict.
+  </Tab>
+  <Tab title="Start with a test">
+    Use the template or `runDrills()` when you already know the behavior to verify. Define a target, starting conditions, and assertions, then run the drill in an isolated world.
+  </Tab>
+</Tabs>
+
+Both paths use the same Tool contracts, world state, and evidence. Starting a backend proves connectivity; running assertions proves agent behavior.

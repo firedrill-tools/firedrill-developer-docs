@@ -1,0 +1,50 @@
+---
+title: "Evidence, reset, and reproduction"
+description: "Understand why a drill passed, restore its starting state, and rerun it exactly."
+---
+
+**Evidence** is the ordered record of what happened during a run: Tool calls, state mutations, events, faults, callbacks, time changes, assertions, target output, and optional attachments.
+
+## Read a result
+
+Start with the verdict, then follow the causal order:
+
+1. task and starting scenario;
+2. agent interactions and Tool calls;
+3. state, event, fault, and time changes;
+4. expected and actual assertion values;
+5. retained logs, screenshots, recordings, or files;
+6. build hash, seed, and reproduction command.
+
+Firedrill writes a central report index at `.firedrill/reports/index.html` and a portable bundle for every retained attempt. JSON supports automation, JUnit integrates with CI, and HTML is the primary human-readable view.
+
+## Reset semantics
+
+A full reset restores the world's baseline state, clock, randomness, pending work, faults, and journal. A Tool-scoped reset restores selected Tool packages while preserving global time, earlier evidence, and unselected Tool state.
+
+```ts
+await world.reset();
+await world.reset({ packages: ["records"] });
+```
+
+Every successful reset advances the world's generation. Restart state and evidence cursors when the generation changes.
+
+## Reproduce a run
+
+Reports retain the exact content-addressed build hash and seed. The printed reproduction command runs that build again without silently compiling different source.
+
+```bash
+firedrill run set-record-once \
+  --build-hash sha256:<hash> \
+  --seed 42
+```
+
+Keep the corresponding project-local build directory. If it has been removed, restore the source revision and per-test setup that produced the hash, then compile again.
+
+<Note>
+  Local report verification checks file hashes, schemas, identities, and evidence ordering. Local bundles are not cryptographically signed. Hosted attestation is a separate Cloud capability.
+</Note>
+
+<Card title="Read reports and the Inspector" icon="magnifying-glass" href="/guides/results">
+  Navigate the report index, compare runs, and verify a bundle.
+</Card>

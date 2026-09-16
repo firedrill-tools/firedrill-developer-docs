@@ -1,53 +1,212 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "name": "Firedrill",
+  "description": "Stateful simulation and testing for action-taking AI agents",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#3157D5",
+    "light": "#5272DE",
+    "dark": "#5272DE"
   },
   "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "fonts": {
+    "family": "Inter",
+    "weight": 450,
+    "heading": {
+      "family": "Inter",
+      "weight": 600
+    }
+  },
   "navigation": {
-    "pages": [
+    "tabs": [
       {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
+        "tab": "Documentation",
+        "icon": "book-open",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": [
+              "index",
+              "quickstart",
+              "concepts/how-it-works",
+              "reference/choose-a-workflow"
+            ]
+          },
+          {
+            "group": "Core concepts",
+            "pages": [
+              "concepts/tools",
+              "concepts/world-state",
+              "concepts/scenarios",
+              "concepts/actors-personas",
+              "concepts/drills-runs",
+              "concepts/evidence-reset"
+            ]
+          },
+          {
+            "group": "Build a local world",
+            "pages": [
+              "guides/start-local-tools",
+              "guides/install-tools",
+              "guides/create-tool-package",
+              "guides/project-files",
+              "guides/tool-apps",
+              "guides/import-data"
+            ]
+          },
+          {
+            "group": "Test and simulate",
+            "pages": [
+              "guides/connect-agent",
+              "guides/run-first-drill",
+              "guides/mock-dependencies",
+              "guides/control-state-time",
+              "guides/reusable-scenarios",
+              "guides/callbacks",
+              "guides/browser-testing",
+              "guides/capture",
+              "guides/results",
+              "guides/ci"
+            ]
+          },
+          {
+            "group": "Coding agents",
+            "pages": [
+              "guides/coding-agents",
+              "guides/firedrill-agent",
+              "guides/tool-discovery"
+            ]
+          },
+          {
+            "group": "Firedrill Cloud",
+            "pages": [
+              "cloud/overview",
+              "cloud/projects-builds",
+              "cloud/sessions",
+              "cloud/runs-evidence",
+              "cloud/github",
+              "cloud/security"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/glossary",
+              "reference/project-structure",
+              "reference/tool-contract",
+              "reference/local-inspector-api",
+              "reference/compatibility",
+              "reference/troubleshooting"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "CLI",
+        "icon": "square-terminal",
+        "groups": [
+          {
+            "group": "CLI",
+            "pages": [
+              "cli/overview",
+              "cli/reference",
+              "reference/troubleshooting"
+            ]
+          },
+          {
+            "group": "Tools",
+            "pages": [
+              "guides/tool-discovery",
+              "guides/install-tools",
+              "guides/create-tool-package"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "SDKs",
+        "icon": "code",
+        "groups": [
+          {
+            "group": "Start here",
+            "pages": [
+              "sdk/overview"
+            ]
+          },
+          {
+            "group": "Local TypeScript SDK",
+            "pages": [
+              "sdk/local-typescript",
+              "guides/mock-dependencies",
+              "guides/browser-testing"
+            ]
+          },
+          {
+            "group": "Cloud SDKs",
+            "pages": [
+              "sdk/cloud-typescript",
+              "sdk/cloud-python",
+              "sdk/errors"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API reference",
+        "icon": "brackets-curly",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/authentication"
+            ]
+          },
+          {
+            "group": "Control API",
+            "openapi": "api-reference/openapi.json"
+          }
         ]
       }
     ],
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "GitHub",
+          "href": "https://github.com/firedrill-tools",
+          "icon": "github"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "firedrill.run",
+          "href": "https://firedrill.run",
+          "icon": "globe"
         }
       ]
     }
   },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "GitHub",
+        "href": "https://github.com/firedrill-tools"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "label": "Get started",
+      "href": "/quickstart"
+    }
+  },
+  "styling": {
+    "eyebrows": "breadcrumbs"
+  },
+  "api": {
+    "playground": {
+      "display": "none"
     }
   },
   "contextual": {
@@ -56,7 +215,6 @@
       "view",
       "chatgpt",
       "claude",
-      "perplexity",
       "mcp",
       "cursor",
       "vscode"
@@ -64,9 +222,7 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "github": "https://github.com/firedrill-tools"
     }
   }
 }

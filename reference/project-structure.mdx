@@ -1,0 +1,63 @@
+---
+title: "Project structure"
+description: "Organize reviewable Firedrill source separately from generated worlds and reports."
+---
+
+Firedrill discovers resource files recursively beneath the `sourceRoot` in `firedrill.json`. The following layout is recommended, not required.
+
+```text
+your-agent/
+├── firedrill.json
+├── firedrill/
+│   ├── world.yaml
+│   ├── tools/
+│   │   └── <tool-id>/
+│   │       ├── <tool-id>.tool.yaml
+│   │       └── behavior.ts
+│   ├── scenarios/
+│   │   └── <scenario-id>.scenario.yaml
+│   ├── targets/
+│   │   └── <target-id>.target.yaml
+│   ├── drills/
+│   │   └── <drill-id>.drill.yaml
+│   └── suites/
+│       └── <suite-id>.suite.yaml
+├── test/
+│   └── agent.test.ts
+└── .firedrill/                 # generated and ignored
+```
+
+## Naming and formats
+
+Use descriptive kebab-case filenames and the resource suffixes `.tool`, `.scenario`, `.target`, `.drill`, and `.suite`. YAML, YML, and JSON are supported for every resource. Tool behavior is JavaScript or TypeScript.
+
+Identity lives in each file's `id`, not its path. You can change a display title without moving the file. If you move a Tool declaration, update its relative behavior-module path.
+
+## What belongs in Git
+
+| Commit | Keep ignored |
+| --- | --- |
+| `firedrill.json` | `.firedrill/builds/` |
+| world and resource YAML/JSON | `.firedrill/worlds/` and `.firedrill/runs/` |
+| deterministic Tool behavior modules | `.firedrill/reports/` and `.firedrill/browser/` |
+| test adapters and configuration | local contribution and import staging |
+| installed coding-agent skill, if the team shares it | any provider key or production credential |
+
+Generated evidence may contain synthetic records and agent output. Keep `.firedrill/` out of version control even when the data is not production data.
+
+## Root configuration
+
+```json
+{
+  "schemaVersion": 1,
+  "sourceRoot": "firedrill",
+  "world": "world.yaml",
+  "toolPackages": ["@your-scope/firedrill-tool"]
+}
+```
+
+`toolPackages` selects installed reusable Tools. Repository-owned Tool declarations under `sourceRoot` remain available without publishing a package.
+
+<Card title="Author the files" icon="folder-tree" href="/guides/project-files">
+  See how world, Tool, scenario, target, drill, and suite source relate.
+</Card>

@@ -5,3 +5,10 @@
 # Draft content
 drafts/
 *.draft.mdx
+
+# Repository instructions and design metadata, not documentation pages
+AGENTS.md
+PRODUCT.md
+DESIGN.md
+LICENSE
+.impeccable/

@@ -1,33 +1,39 @@
-> **First-time setup**: Customize this file for your project. Prompt the user to customize this file for their project.
-> For Mintlify product knowledge (components, configuration, writing standards),
-> install the Mintlify skill: `npx skills add https://mintlify.com/docs`
+# Firedrill documentation rules
 
-# Documentation project instructions
+This is a Mintlify documentation site. Pages are MDX with YAML frontmatter; site configuration lives in `docs.json`.
 
-## About this project
+## Product truth
 
-- This is a documentation site built on [Mintlify](https://mintlify.com)
-- Pages are MDX files with YAML frontmatter
-- Configuration lives in `docs.json`
-- Use the Mintlify MCP server, `https://mcp.mintlify.com`, to edit content and settings via MCP
-- Use the Mintlify docs MCP server, `https://www.mintlify.com/docs/mcp`, to query information about using Mintlify via MCP
+- Firedrill is a stateful simulation and testing framework for action-taking AI agents.
+- Lead with the tool-first path: add or create Tools, start the synthetic environment, connect the existing agent, then add drills when behavior should become repeatable.
+- Firedrill runs controlled worlds, not customer agents. Users keep their existing model, application, and runner.
+- The complete individual-developer loop is local. Hosted features add managed operation, history, replay, sharing, teams, GitHub automation, retention, and attestation.
+- Never document a planned feature as available. Label release candidates, previews, and unpublished packages clearly.
+- Never present an example Tool, vendor, agent type, or fixture as the product model.
+- Demo delivery is v2 and must not appear as a current capability.
+- Use `firedrill.run` for every Firedrill-owned domain.
+- Do not mention competitors, private planning, research provenance, or internal implementation discussions.
 
 ## Terminology
 
-{/* Add product-specific terms and preferred usage */}
-{/* Example: Use "workspace" not "project", "member" not "user" */}
+- **Tool**: a synthetic dependency with operations, state, schemas, and behavior.
+- **World**: an isolated stateful environment in which Tools and actors interact.
+- **Scenario**: reusable starting conditions such as data, faults, events, permissions, and time.
+- **Drill**: an executable behavioral test for an agent.
+- **Run**: one recorded execution of a drill.
+- **Evidence**: the ordered record of calls, mutations, events, faults, time, assertions, and optional captures.
 
-## Style preferences
+Capitalize **Tool** when referring to the Firedrill concept. Use “run a drill,” not “run a simulation,” in user-facing copy.
 
-{/* Add any project-specific style rules below */}
+## Writing and design
 
-- Use active voice and second person ("you")
-- Keep sentences concise — one idea per sentence
-- Use sentence case for headings
-- Bold for UI elements: Click **Settings**
-- Code formatting for file names, commands, paths, and code references
+- Use active voice, second person, short paragraphs, and sentence-case headings.
+- Define Firedrill-specific terms before relying on them.
+- Put the quickest useful path first and move advanced detail to reference pages.
+- Use code that a developer can copy. Do not replace required values with unexplained placeholders.
+- Use cards only for major choices, steps only for ordered workflows, and callouts only when they carry meaning.
+- Keep light and dark mode readable, keyboard navigation intact, and link text descriptive.
 
-## Content boundaries
+## Verification
 
-{/* Define what should and shouldn't be documented */}
-{/* Example: Don't document internal admin features */}
+Run `mint validate`, the full broken-link check, `mint a11y`, and a local desktop/mobile preview before pushing.

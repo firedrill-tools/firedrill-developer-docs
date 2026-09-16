@@ -1,0 +1,12 @@
+.DS_Store
+node_modules/
+.mintlify/
+.env
+.env.*
+!.env.example
+*.log
+
+# Local documentation design/review artifacts
+PRODUCT.md
+DESIGN.md
+.impeccable/

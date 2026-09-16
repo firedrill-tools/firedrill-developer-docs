@@ -1,0 +1,93 @@
+---
+title: "SDK errors and retries"
+description: "Handle canonical API errors, transport timeouts, asynchronous operations, and uncertain mutations safely."
+---
+
+<Note>
+  The Cloud SDKs are unpublished private-preview release candidates.
+</Note>
+
+The Control API returns a canonical error envelope:
+
+```json
+{
+  "code": "control.EXAMPLE_ERROR",
+  "message": "The request could not be completed",
+  "correlationId": "corr_...",
+  "retryable": false,
+  "source": "platform"
+}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `code` | Stable namespaced identifier such as `control.*` or `world.*` |
+| `message` | Human-readable explanation |
+| `correlationId` | Identifier to include when requesting support |
+| `retryable` | Whether the server considers the same logical request retryable |
+| `retryAfterMs` | Optional minimum wait before retrying |
+| `operationId` | Optional accepted asynchronous operation to inspect |
+| `issues` | Optional field-level validation failures |
+| `evidence` | Optional session, run, journal, or build context accumulated before failure |
+
+## TypeScript
+
+Generated requests throw `FiredrillError` for HTTP or decoding failures and
+`FiredrillTimeoutError` when the configured client deadline expires.
+
+```ts
+import {
+  FiredrillError,
+  FiredrillTimeoutError,
+  FiredrillClient,
+} from "@firedrill/cloud";
+
+try {
+  await new FiredrillClient({ token }).projectsList();
+} catch (error) {
+  if (error instanceof FiredrillError) {
+    console.error(error.statusCode, error.body);
+  } else if (error instanceof FiredrillTimeoutError) {
+    console.error("The client stopped waiting; remote state may still change");
+  } else {
+    throw error;
+  }
+}
+```
+
+Lifecycle helpers may throw `FiredrillLifecycleError`, `HostedRunRecoveryError`,
+or `HostedDrillsRecoveryError`. Inspect their pending request or checkpoint and
+resume it; do not invent a new idempotency key.
+
+## Python
+
+Generated requests raise status-specific exceptions such as `BadRequestError`,
+`UnauthorizedError`, `ConflictError`, or `ServiceUnavailableError`. Each extends
+the generated `ApiError` and carries `status_code`, `headers`, and a typed `body`.
+
+```python
+from firedrill_cloud.generated.errors import UnauthorizedError
+
+try:
+    client.projects_list()
+except UnauthorizedError as error:
+    print(error.status_code, error.body.correlation_id, error.body.code)
+```
+
+The helper layer adds `FiredrillLifecycleError`, `HostedRunRecoveryError`, and
+`HostedDrillsRecoveryError`. Async cancellation remains `CancelledError`; it is
+not converted into success or silently retried.
+
+## Safe retry rules
+
+1. Read `retryable`; do not retry a terminal rejection as if it were transient.
+2. For an unsafe mutation, persist the exact request and `Idempotency-Key` before dispatch.
+3. If the response is uncertain, repeat that exact request with the same key.
+4. If an `operationId` is known, poll that operation instead of submitting again.
+5. A client timeout or disconnect means only that the client stopped waiting.
+6. Never treat a queued operation, partial receipt, or interrupted status as completion.
+
+<Warning>
+  Changing an idempotency key changes the logical request. It is not a retry of an
+  uncertain mutation.
+</Warning>

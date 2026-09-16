@@ -1,0 +1,87 @@
+---
+title: "Hosted world sessions"
+description: "Create and control one isolated world while your own runner connects an agent through scoped access."
+---
+
+<Note>
+  Firedrill Cloud is in private preview.
+</Note>
+
+A session is one isolated running world pinned to a project, environment, build,
+seed, and starting setup. Creating a session never starts your agent.
+
+## Choose the starting setup
+
+Create a session with exactly one of these choices:
+
+| Selection | Result |
+| --- | --- |
+| Neither `scenarioId` nor `drillId` | Start from the build baseline |
+| `scenarioId` | Start from that reusable situation without a target or verdict |
+| `drillId` | Prepare the task, target, assertions, and budgets needed for a drill run |
+
+Every session requires a decimal unsigned 64-bit seed. You may also pin an exact
+build hash and explicitly select approved callback receivers.
+
+## Connect your agent
+
+When the session is ready, request access for one actor declared by its build. The
+returned binding contains short-lived world URLs, one world credential, expiry,
+and the exact operations that actor may call.
+
+Pass only that binding to your agent's test configuration. Never give the agent a
+Cloud control credential. A world credential cannot manage projects, create other
+sessions, or access another actor's capabilities.
+
+```ts
+// @firedrill/cloud is an unpublished private-preview package.
+import { connect, FiredrillClient } from "@firedrill/cloud";
+
+const client = new FiredrillClient({
+  token: process.env.FIREDRILL_CREDENTIAL,
+});
+
+const world = await connect({
+  client,
+  projectId: "prj_...",
+  environmentId: "env_...",
+  actorId: "operator",
+  seed: "42",
+});
+
+try {
+  await runExistingAgent({
+    httpUrl: world.binding.worldHttpUrl,
+    mcpUrl: world.binding.worldMcpUrl,
+    credential: world.binding.credential,
+  });
+} finally {
+  await world.destroy();
+}
+```
+
+## Session controls
+
+| Control | Meaning |
+| --- | --- |
+| Reset | Restore the original setup, selected Tool packages, or an immutable hosted snapshot |
+| Advance time | Move virtual time with an explicit event budget and durable receipt |
+| Set a fault | Enable or disable a fault declared by the selected build |
+| Snapshot | Capture state, evidence position, clock, and pending work atomically |
+| Fork | Create an independent session from an immutable snapshot |
+| Extend | Increase the session lifetime within the server allowance |
+| Destroy | Release the exact session |
+
+Reset changes world state, pending work, clock, and evidence generation together.
+It does not change repository source or silently select another build. Existing
+connection endpoints stay scoped to the same session, but SDK helpers may rotate
+the short-lived binding after a mutation.
+
+Unsafe controls require a stable idempotency key. If a request times out, do not
+assume it was undone. Recover the accepted asynchronous operation or repeat the
+exact request with the same key.
+
+<Warning>
+  Starting a session, opening a Tool app, or manually calling a Tool does not mean
+  an agent passed. Use a drill run when you need a verdict.
+</Warning>

@@ -1,0 +1,133 @@
+---
+title: "Cloud SDK for Python"
+description: "Control hosted worlds from synchronous or asynchronous Python code while your runner owns agent execution."
+---
+
+<Note>
+  `firedrill-cloud` is an unpublished release candidate for the Firedrill Cloud
+  private preview. It requires Python 3.10 or newer.
+</Note>
+
+The package exposes generated `Firedrill` and `AsyncFiredrill` clients plus
+handwritten lifecycle, drill-run, evidence, capture, and source-control helpers.
+
+Preview participants receive installation instructions with their access. The
+reserved distribution name is `firedrill-cloud`; it is not currently installable
+from the public Python package index.
+
+## Start an owned world
+
+```python
+import os
+from firedrill_cloud import Firedrill, connect
+
+client = Firedrill(token=os.environ["FIREDRILL_CREDENTIAL"])
+
+with connect(
+    client,
+    project_id="prj_...",
+    environment_id="env_...",
+    actor_id="operator",
+    seed="42",
+) as world:
+    run_existing_agent(world.binding)
+    world.reset()
+```
+
+The context manager destroys the owned session on exit. Without `with`, you own
+cleanup and must call `world.destroy()`.
+
+The asynchronous surface uses the same options:
+
+```python
+import os
+from firedrill_cloud import AsyncFiredrill, connect_async
+
+client = AsyncFiredrill(token=os.environ["FIREDRILL_CREDENTIAL"])
+
+async with await connect_async(
+    client,
+    project_id="prj_...",
+    environment_id="env_...",
+    actor_id="operator",
+    seed="42",
+) as world:
+    await run_existing_agent_async(world.binding)
+```
+
+## Run a drill
+
+```python
+import os
+from firedrill_cloud import Firedrill, run_hosted_drill
+
+client = Firedrill(token=os.environ["FIREDRILL_CREDENTIAL"])
+
+def run_interaction(context):
+    output = run_existing_agent(
+        task=context.interaction.task,
+        binding=context.binding,
+        cancel_event=context.cancel_event,
+    )
+    return {
+        "schemaVersion": 1,
+        "status": "completed",
+        "output": output,
+        "attachments": [],
+    }
+
+run = run_hosted_drill(
+    client,
+    project_id="prj_...",
+    hosted_run_id="hrun_...",
+    run_interaction=run_interaction,
+    on_checkpoint=checkpoint_store.save,
+)
+
+print(run.hosted_run_id, run.state)
+```
+
+Use `session_id` instead of `hosted_run_id` to create a run from a ready,
+drill-configured session. `run_hosted_drill_async` accepts `AsyncFiredrill` and an
+async callback.
+
+The callback runs your agent and returns its actual target result. Firedrill uses
+the world journal and assertions to decide the final verdict.
+
+## Evidence and control
+
+```python
+from firedrill_cloud import tail_evidence
+
+for entry in tail_evidence(
+    client,
+    project_id="prj_...",
+    session_id="ses_...",
+    max_entries=100,
+):
+    print(entry.sequence, entry.kind)
+```
+
+`tail_evidence` removes page-boundary duplicates and fails on a missing sequence.
+Owned world handles also support reset, lifetime extension, virtual-time advance,
+declared fault control, pending-mutation recovery, and destruction.
+
+## Explicit capture
+
+The interaction context exposes `attach` and `capture`. Logs, screenshots, videos,
+and files are off by default. Enable `always` or `retain-on-failure`, select files
+below an explicit root, and redact secrets before capture.
+
+No capture API starts a browser or video recorder by itself. Supply an existing
+file or register a driver that creates it. The helper uploads an immutable snapshot
+of the admitted bytes and retains a checkpoint before completing the interaction.
+
+## Recovery rules
+
+- Persist every checkpoint before returning from its callback.
+- Resume `HostedRunRecoveryError.checkpoint` instead of creating another run.
+- Resolve `world.pending_mutation` before issuing another world mutation.
+- Treat sync and async cancellation as an uncertain remote outcome until resolved.
+- Keep the control credential out of the agent process.
+
+See [SDK errors](/sdk/errors) for transport and canonical API errors.

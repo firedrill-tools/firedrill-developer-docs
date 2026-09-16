@@ -1,0 +1,54 @@
+---
+title: "CLI overview"
+description: "Use Firedrill locally from an interactive terminal, coding agent, or CI job."
+---
+
+The Firedrill CLI covers the complete local workflow: create or install Tools, serve a synthetic backend, compile source, run drills, inspect results, verify reports, and expose a coding-agent MCP server.
+
+<Note>
+  `@firedrill/cli` is an unpublished release candidate. The [quickstart](/quickstart) shows how to build and invoke it from the repository checkout.
+</Note>
+
+## Common commands
+
+| Command | Purpose |
+| --- | --- |
+| `firedrill init` | Choose or create Tools and set up the repository |
+| `firedrill serve` | Start the synthetic backend and Inspector without requiring a drill |
+| `firedrill validate` | Parse and validate source without writing a build |
+| `firedrill plan` | Preview the exact semantic build |
+| `firedrill build` | Materialize and verify an immutable build |
+| `firedrill run [drill-id]` | Run one drill or the selected set |
+| `firedrill inspect` | Browse project definitions and retained results |
+| `firedrill compare` | Compare two verified report bundles |
+| `firedrill report verify` | Verify a portable local report bundle |
+| `firedrill tool …` | List, add, inspect, validate, and conformance-test Tools |
+| `firedrill browser …` | Run optional browser tests |
+| `firedrill mcp` | Give a coding agent a scoped control surface |
+
+## Human and automation modes
+
+Interactive commands explain the next action and may guide setup. CI, piped, and `--json` use never depend on prompts. Bare `init` is read-only outside an interactive terminal unless you explicitly choose `--tool`, `--custom`, or `--path`.
+
+```bash
+firedrill validate --json
+firedrill run account-update --json
+```
+
+Human and JSON output identify the same result, diagnostics, and report locations.
+
+## Exit codes
+
+| Code | Meaning |
+| --- | --- |
+| `0` | The command succeeded; for `run`, every selected drill passed |
+| `1` | Source, execution, or assertions failed |
+| `2` | The CLI invocation itself was invalid |
+
+## Generated output
+
+Firedrill writes builds, worlds, run databases, browser artifacts, and reports under the selected project's `.firedrill/` directory. Keep it ignored because it can contain synthetic records, prompts, agent output, and captures.
+
+<Card title="Complete CLI reference" icon="list" href="/cli/reference">
+  Read every command, option, default, and safety boundary generated from the executable.
+</Card>

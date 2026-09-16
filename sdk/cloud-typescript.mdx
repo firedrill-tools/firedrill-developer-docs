@@ -1,0 +1,141 @@
+---
+title: "Cloud SDK for TypeScript"
+description: "Control hosted worlds and run drills while your TypeScript runner continues to own the agent."
+---
+
+<Note>
+  `@firedrill/cloud` is an unpublished release candidate for the Firedrill Cloud
+  private preview. The eventual runtime requirement is Node.js 20.19 or newer.
+</Note>
+
+The generated `FiredrillClient` maps the Control API. Higher-level helpers create
+and control sessions, run drills with a caller-owned agent callback, follow evidence,
+and retain recovery checkpoints.
+
+Preview participants receive installation instructions with their access. The
+reserved package name is `@firedrill/cloud`; it is not currently installable from
+the public npm registry.
+
+## Configure the client
+
+```ts
+import { FiredrillClient } from "@firedrill/cloud";
+
+const client = new FiredrillClient({
+  token: process.env.FIREDRILL_CREDENTIAL,
+  // Defaults to https://api.firedrill.run after release.
+  baseUrl: process.env.FIREDRILL_API_URL,
+});
+```
+
+Use an opaque control credential issued for your user or service. Do not pass this
+client or credential to the agent under test.
+
+## Start an owned world
+
+```ts
+import { connect, FiredrillClient } from "@firedrill/cloud";
+
+const client = new FiredrillClient({
+  token: process.env.FIREDRILL_CREDENTIAL,
+});
+
+const world = await connect({
+  client,
+  projectId: "prj_...",
+  environmentId: "env_...",
+  actorId: "operator",
+  seed: "42",
+  // scenarioId: "busy-inbox", // optional; do not combine with drillId
+});
+
+try {
+  await runExistingAgent(world.binding);
+  await world.reset();
+} finally {
+  await world.destroy();
+}
+```
+
+`connect()` creates one session, waits for readiness, issues actor-scoped world
+access, and returns a handle. It does not invoke an agent. Omit `scenarioId` and
+`drillId` for the build baseline.
+
+The handle can reset state, advance virtual time, set declared faults, extend the
+session, and destroy it. Mutations retain uncertain requests so you can recover
+with the same idempotency key instead of issuing a duplicate action.
+
+## Run a drill with your agent
+
+```ts
+import { FiredrillClient, runHostedDrill } from "@firedrill/cloud";
+
+const client = new FiredrillClient({
+  token: process.env.FIREDRILL_CREDENTIAL,
+});
+
+const run = await runHostedDrill(client, {
+  projectId: "prj_...",
+  hostedRunId: "hrun_...", // or pass sessionId to create a run
+  onCheckpoint: (checkpoint) => checkpointStore.save(checkpoint),
+  runInteraction: async ({ interaction, binding, signal, capture }) => {
+    capture.log("Starting agent interaction");
+    const output = await runExistingAgent({
+      task: interaction.task,
+      binding,
+      signal,
+    });
+    return {
+      schemaVersion: 1,
+      status: "completed",
+      output,
+      attachments: [],
+    };
+  },
+});
+
+console.log(run.hostedRunId, run.state);
+```
+
+The callback receives world-only access for the current interaction. The helper
+submits the actual callback result, waits through sealing, and returns the hosted
+run. A callback result is not itself the verdict; inspect the terminal run and its
+assertions.
+
+## Capture files and media
+
+Pass `root` plus explicit policies to `runHostedDrill`:
+
+```ts
+await runHostedDrill(client, {
+  projectId: "prj_...",
+  hostedRunId: "hrun_...",
+  root: process.cwd(),
+  capture: {
+    logs: "always",
+    screenshots: "retain-on-failure",
+    video: "retain-on-failure",
+    files: "off",
+  },
+  runInteraction: async ({ interaction, binding, signal, capture, attach }) => {
+    capture.log("Invoking the agent");
+    attach({ path: "artifacts/output.json", mediaType: "application/json" });
+    const output = await runExistingAgent({ task: interaction.task, binding, signal });
+    return { schemaVersion: 1, status: "completed", output, attachments: [] };
+  },
+});
+```
+
+Firedrill snapshots only files you select below the explicit root. It does not scan
+your repository, intercept global logs, or create a browser recording automatically.
+Register a capture driver or attach an existing file when you need those artifacts.
+
+## Recovery rules
+
+- Persist each hosted-run checkpoint before its callback returns.
+- Retry an uncertain mutation with the same request and idempotency key.
+- Do not rerun an agent after an upload or completion checkpoint.
+- A local abort stops the client wait; it does not prove the server operation stopped.
+- Keep control credentials separate from short-lived world bindings.
+
+See [SDK errors](/sdk/errors) for the canonical error envelope.

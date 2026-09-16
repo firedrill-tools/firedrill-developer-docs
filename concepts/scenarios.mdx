@@ -1,0 +1,47 @@
+---
+title: "Scenarios"
+description: "Define reusable starting conditions without duplicating a world."
+---
+
+A **scenario** is a named variation of a world's starting conditions. It can layer data, actors, permissions, faults, events, Tool response overrides, and virtual time onto the baseline.
+
+```yaml
+schemaVersion: 1
+id: delayed-write
+title: Write service is delayed
+state:
+  - action: upsert
+    packageId: records
+    namespace: records
+    rowId: primary
+    value:
+      status: pending
+faults:
+  - packageId: records
+    faultId: write-timeout
+```
+
+## When to create one
+
+Use a scenario when several drills or manual sessions need the same meaningful situation, such as an existing record, a permission boundary, a downstream failure, or a scheduled event.
+
+Do not create a scenario for every assertion. A drill can reference a scenario and add its own task-specific overrides; the SDK can derive temporary per-test state without changing source.
+
+## Precedence
+
+Firedrill applies starting conditions in a defined order:
+
+1. world baseline;
+2. selected scenario;
+3. drill-level overrides;
+4. explicit per-test SDK setup.
+
+Later layers can replace the same record or override rule. The normalized final setup becomes part of the immutable build recorded in the report.
+
+## Scenarios are not runs
+
+A scenario defines how a world starts. A drill defines what the agent should attempt and what must be true afterwards. A run is one execution of that drill.
+
+<Card title="Reuse scenarios" icon="layers" href="/guides/reusable-scenarios">
+  Compose data, faults, events, and overrides across drills.
+</Card>

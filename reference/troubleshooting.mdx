@@ -1,0 +1,77 @@
+---
+title: "Troubleshooting"
+description: "Recover from common setup, connection, execution, and report problems."
+---
+
+Start with machine-readable validation. Diagnostics include a stable code, file and path when available, and a repair direction.
+
+```bash
+firedrill validate --json
+```
+
+## The CLI cannot be found
+
+The packages are not yet published. Build the current checkout and use its CLI:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm build
+node /absolute/path/to/firedrill/packages/cli/dist/bin.js --help
+```
+
+## Source validates but the agent cannot connect
+
+1. Start `firedrill serve` and open **Connect agent** in the Inspector.
+2. Confirm the target declares the protocol the agent uses.
+3. Map the short-lived Firedrill URL and token into the configuration names the agent already reads.
+4. Keep the server process alive for the whole interaction.
+5. Do not copy model-provider credentials into the Firedrill binding.
+
+If the dependency URL is hardcoded, add a test-side client factory, adapter, module mock, or proxy boundary. Firedrill does not patch arbitrary processes.
+
+## A target finishes but the drill fails
+
+This is expected when observable consequences do not match the assertions. Open the run and compare:
+
+- successful and denied Tool operations;
+- expected and actual assertion values;
+- final state rows;
+- events, faults, callbacks, and virtual time;
+- target stderr and retained captures.
+
+The agent's final message and exit code do not override failed assertions.
+
+## A command target cannot read an environment variable
+
+Command targets receive synthetic binding values plus only the host variables listed under `environmentFromHost`.
+
+```yaml
+environmentFromHost:
+  ANTHROPIC_API_KEY: ANTHROPIC_API_KEY
+```
+
+Add only the variables the target needs. Do not pass production service credentials into a synthetic world.
+
+## The target times out
+
+`timeoutMs` covers the entire model and Tool loop, not one request. Set it for the slowest expected interaction. Use a bounded operation budget and inspect the partial evidence to distinguish slow model calls from repeated Tool activity.
+
+## A report will not verify
+
+```bash
+firedrill report verify .firedrill/reports/<run-id> --json
+```
+
+Verification fails if a required file is missing, changed, structurally invalid, or inconsistent with the manifest. Restore the original bundle instead of editing generated evidence.
+
+## The report index lists a missing run
+
+The central `index.html` is navigation over retained run folders. Copy or move the index and its run directories together. A missing folder remains listed without an unsafe link.
+
+## Browser capture is missing
+
+Screenshots, recordings, traces, and logs are opt-in. The caller or registered capture driver must supply them, and retention policy may keep them only on failure. Browser completion alone does not prove world-state assertions.
+
+## Local state looks stale after reset
+
+Every reset advances the world generation. Restart paginated state and evidence reads when the generation changes. Tool-scoped reset intentionally preserves global time, earlier evidence, and unselected Tool state; use a full reset when you need the complete baseline.

@@ -1,0 +1,51 @@
+---
+title: "SDK overview"
+description: "Choose the local TypeScript API or a private-preview Cloud control client for TypeScript and Python."
+---
+
+Firedrill separates the local framework from hosted control clients.
+
+| Package | Language | Use it for | Availability |
+| --- | --- | --- | --- |
+| `@firedrill/sdk` | TypeScript | Create local worlds, run drills, inject test setup, and write local reports | Open-source release candidate; not published yet |
+| `@firedrill/cloud` | TypeScript | Control hosted projects, sessions, runs, evidence, and browser tests | Private-preview release candidate; not published yet |
+| `firedrill-cloud` | Python | Control the same hosted API with synchronous and asynchronous clients | Private-preview release candidate; not published yet |
+
+<CardGroup cols={3}>
+  <Card title="Local TypeScript" icon="laptop-code" href="/sdk/local-typescript">
+    Run the complete individual-developer loop on your machine.
+  </Card>
+  <Card title="Cloud TypeScript" icon="code" href="/sdk/cloud-typescript">
+    Use the generated Control API client and hosted lifecycle helpers.
+  </Card>
+  <Card title="Cloud Python" icon="python" href="/sdk/cloud-python">
+    Use synchronous or asynchronous hosted clients and helpers.
+  </Card>
+</CardGroup>
+
+## The agent stays yours
+
+Neither SDK embeds or hosts the agent you are testing. The local SDK invokes the
+target you declare or the callback you supply. The Cloud SDK coordinates a managed
+world and gives your runner a short-lived binding when agent work is required.
+
+This separation keeps model credentials, application secrets, and agent lifecycle
+in your process. Firedrill evaluates the recorded world consequences.
+
+## Generated and handwritten surfaces
+
+The Cloud SDKs contain:
+
+- a generated client that maps the public Control API;
+- small lifecycle helpers for owned sessions and drill runs;
+- evidence paging and continuity checks;
+- explicit capture and attachment helpers; and
+- Node-only Cloud CLI adapters in the TypeScript package's `/cli` export.
+
+Generated files carry API provenance and should not be edited manually. The helper
+layer does not reimplement authorization, world behavior, compilation, or verdicts.
+
+<Note>
+  Installation commands on the Cloud SDK pages describe the package names reserved
+  for release. The packages are not available from npm or PyPI yet.
+</Note>

@@ -1,47 +1,136 @@
 ---
 title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+description: "Run a complete local drill and inspect its evidence."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+This guide runs a small, deterministic agent against one synthetic Tool. You will validate the repository source, execute a passing drill, and open a self-contained report.
 
 ## Prerequisites
 
-Before you begin, you must have:
+- Node.js 20.19 or later
+- pnpm 9.15 through 10
+- Git
 
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
-
-## Get started
+<Info>
+  Public package installation is not available yet. These steps build the current release candidate from source, which currently requires repository access. Once the repository and packages are public, the normal path will be `npm install --save-dev @firedrill/cli` and `npx firedrill init`.
+</Info>
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
-
+  <Step title="Build the release candidate">
     ```bash
-    npm install your-package
+    git clone https://github.com/firedrill-tools/firedrill.git
+    cd firedrill
+    pnpm install --frozen-lockfile
+    pnpm build
+    export FIREDRILL_CLI="$PWD/packages/cli/dist/bin.js"
+    firedrill() { node "$FIREDRILL_CLI" "$@"; }
     ```
+
+    The shell function keeps the built CLI available while you work through this guide.
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
+  <Step title="Create a runnable example">
+    From the Firedrill checkout:
 
     ```bash
-    your-cli init
+    mkdir ../my-first-drill
+    cd ../my-first-drill
+    firedrill init --path template
     ```
+
+    The template creates a Tool, baseline data, one target, and one drill. Generated runtime data and reports go under `.firedrill/`, which the initializer adds to `.gitignore`.
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
-
+  <Step title="Check what will run">
     ```bash
-    your-cli start
+    firedrill validate
+    firedrill plan
     ```
+
+    `validate` checks the source without writing a build. `plan` shows the semantic world that Firedrill would compile.
+  </Step>
+  <Step title="Run the drill">
+    ```bash
+    firedrill run changes-resource
+    ```
+
+    Firedrill creates an isolated SQLite-backed world, starts the Tool interfaces, invokes the example target, evaluates the assertions, and writes terminal, JSON, JSONL, JUnit, and HTML results.
+  </Step>
+  <Step title="Open the results">
+    ```bash
+    firedrill inspect
+    ```
+
+    Use the inspector to move between Tools, starting data, drill definitions, runs, assertions, state changes, and attachments. You can also open `.firedrill/reports/index.html` directly for a static report index that needs no server.
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+## Read the project
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+```text
+my-first-drill/
+├── .gitignore
+├── firedrill.json
+├── firedrill-example/
+│   └── agent.mjs
+├── firedrill/
+│   ├── README.md
+│   ├── world.yaml
+│   ├── tools/
+│   │   └── resource-store/
+│   │       ├── resource-store.tool.yaml
+│   │       └── behavior.mjs
+│   ├── scenarios/
+│   │   └── baseline.scenario.yaml
+│   ├── targets/
+│   │   └── starter-agent.target.yaml
+│   ├── drills/
+│   │   └── changes-resource.drill.yaml
+│   └── suites/
+│       └── resource-store-conformance.suite.yaml
+└── .firedrill/                  # generated and ignored
+```
+
+The files under `firedrill/` describe the controlled environment and its tests. The agent remains separate. YAML, YML, and JSON resource files are supported, and Firedrill discovers them recursively beneath the configured source root.
+
+## Connect your own agent
+
+Replace the example target with one boundary your agent already exposes:
+
+| Agent boundary | Firedrill target or adapter |
+| --- | --- |
+| Executable or script | Command target |
+| Local service | HTTP target |
+| JavaScript or TypeScript entry point | Module target |
+| Test-runner callback | External target through `runDrills()` |
+
+Then map the synthetic Tool connection into the configuration that your agent already reads. Firedrill supports direct, HTTP, MCP, and spawned CLI Tool bindings.
+
+<Warning>
+  Firedrill cannot transparently intercept every hardcoded dependency. Keep production logic unchanged, but provide a configurable endpoint, client factory, module mock, or another test-side seam.
+</Warning>
+
+## Make the result fail on purpose
+
+Open `firedrill/drills/changes-resource.drill.yaml`. Change only one assertion's expected value while leaving the task input unchanged, then rerun:
+
+```bash
+firedrill run changes-resource
+```
+
+The command exits with code `1`, and the report shows expected and actual values together. Restore the assertion when you finish reviewing the failure.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Connect an existing agent" icon="link" href="/guides/connect-agent">
+    Choose the correct target and Tool-binding seam.
+  </Card>
+  <Card title="Build a Tool" icon="wrench" href="/guides/create-tool-package">
+    Define operations, state, behavior, faults, events, and an optional UI.
+  </Card>
+  <Card title="Use your test runner" icon="flask" href="/sdk/local-typescript">
+    Call `runDrills()` from Jest, Vitest, Mocha, or application tests.
+  </Card>
+  <Card title="Understand reports" icon="timeline" href="/guides/results">
+    Read verdicts, causal evidence, state differences, and reproduction data.
+  </Card>
+</CardGroup>

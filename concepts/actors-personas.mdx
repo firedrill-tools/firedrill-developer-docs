@@ -1,0 +1,45 @@
+---
+title: "Actors and personas"
+description: "Separate runtime identity and permissions from human-readable context."
+---
+
+An **actor** is the runtime identity that calls Tools. Its optional description and attributes can describe who that identity represents, but they do not create a second simulated person or grant access.
+
+## Actors enforce access
+
+Actors belong to the world and carry explicit operation grants. A connection token is scoped to one actor, so the kernel can allow or deny every operation and record the decision as evidence.
+
+```yaml
+actors:
+  - id: operator
+    description: Reviews and updates records for the current request.
+    attributes:
+      experience: senior
+      region: north-america
+    grants:
+      - packageId: records
+        operationId: records.get
+      - packageId: records
+        operationId: records.set
+```
+
+Use actors when a result depends on identity or authorization. Actor IDs are scoped to their owning world; equal-looking IDs elsewhere are not automatically the same identity.
+
+## Persona attributes provide context
+
+An actor's `description` and `attributes` can describe role, experience, customer tier, preferences, or other context. They do not grant access, run another model, or automatically change the tested agent's prompt. Pass any needed context explicitly through the drill task or target adapter.
+
+Customer or user records are different from actors. Keep them under Tool state unless they actually perform actions during the drill.
+
+## How they fit into a drill
+
+A drill selects the actor whose permissions apply during the run. Longer drills can select different actors for specific interactions. Keeping descriptive attributes separate from explicit grants prevents prose from becoming an authorization mechanism.
+
+| Concept | Controls | Required? |
+| --- | --- | --- |
+| Actor identity | authorization and evidence attribution | Yes when multiple identities or scoped access matter |
+| Description and attributes | optional human-readable context | No |
+
+<Card title="Author world identities" icon="users" href="/guides/project-files">
+  Define actors, permissions, and optional personas in repository source.
+</Card>

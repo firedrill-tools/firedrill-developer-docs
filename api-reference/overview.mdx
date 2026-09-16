@@ -1,0 +1,96 @@
+---
+title: "Control API overview"
+description: "Use the versioned hosted API for projects, builds, sessions, runs, evidence, CI, and organization controls."
+---
+
+<Note>
+  The Firedrill Control API is in private preview. `https://api.firedrill.run` is
+  the reserved production origin; use only the origin supplied with your preview access.
+</Note>
+
+The Control API manages hosted resources. It does not execute your customer agent.
+Your runner connects an agent to a world using a short-lived binding issued for a
+session or pending drill interaction.
+
+## Base path and format
+
+All public endpoints are under `/v1` and use JSON unless an operation explicitly
+returns archive bytes, an artifact, or a stream.
+
+```sh
+curl "${FIREDRILL_API_URL}/v1/projects" \
+  --header "Authorization: Bearer ${FIREDRILL_CREDENTIAL}"
+```
+
+Use a Cloud SDK when you want generated request and response types plus lifecycle
+helpers. Use the raw API when integrating another language or service.
+
+## Resource model
+
+```text
+organization
+└── project
+    ├── repository source / source draft
+    ├── immutable build
+    ├── environment
+    │   └── world session
+    │       ├── snapshot / fork
+    │       └── hosted drill run
+    └── retained evidence
+```
+
+Project IDs never bypass authorization. The API checks the authenticated principal,
+organization, project grant, and required action on every request.
+
+## Mutations and idempotency
+
+Unsafe mutations require `Idempotency-Key`. Use a stable value for one logical
+request and retain it until the outcome is known.
+
+```sh
+curl --request POST \
+  "${FIREDRILL_API_URL}/v1/projects/${PROJECT_ID}/environments/${ENVIRONMENT_ID}/sessions" \
+  --header "Authorization: Bearer ${FIREDRILL_CREDENTIAL}" \
+  --header "Idempotency-Key: create-world-20260916-001" \
+  --header "Content-Type: application/json" \
+  --data '{"seed":"42"}'
+```
+
+Many long operations return an operation resource. Poll its project-scoped operation
+endpoint after an uncertain response. A timeout means the caller stopped waiting;
+it does not cancel or roll back accepted work.
+
+## Pagination
+
+List endpoints return bounded pages and an opaque next cursor. Pass the cursor
+unchanged to retrieve the next page. Do not parse it or assume it is stable across
+different filters.
+
+## Errors
+
+Errors use one envelope across the Control API:
+
+```json
+{
+  "code": "control.EXAMPLE_ERROR",
+  "message": "The request could not be completed",
+  "correlationId": "corr_...",
+  "retryable": false,
+  "source": "platform"
+}
+```
+
+The envelope may also include `retryAfterMs`, `operationId`, field-level `issues`,
+safe `details`, or evidence accumulated before failure. Preserve `correlationId`
+when reporting a problem.
+
+## API reference conventions
+
+- Path parameters select exact organization-scoped resources.
+- `expectedVersion`, `expectedRevision`, or lease-generation fields provide
+  optimistic concurrency where state can change.
+- Destructive calls require exact confirmation in addition to authorization.
+- World state and evidence endpoints are bounded; no endpoint exposes arbitrary SQL.
+- A queued build, session, browser run, or drill run is not a successful result.
+
+See [Authentication](/api-reference/authentication) before making requests.

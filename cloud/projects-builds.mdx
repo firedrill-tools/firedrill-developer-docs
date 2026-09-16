@@ -1,0 +1,84 @@
+---
+title: "Projects, builds, and environments"
+description: "Understand how repository source becomes an immutable hosted build selected by an environment."
+---
+
+<Note>
+  Firedrill Cloud is in private preview.
+</Note>
+
+A hosted project is the access and history boundary for one agent system. It owns
+repository connections, source drafts, builds, environments, sessions, runs, and
+explicit member grants.
+
+## Source paths
+
+Cloud accepts source through three explicit paths:
+
+- **Connected repository:** choose a discovered `firedrill.json` at an exact branch
+  revision. A later build always records the resolved commit.
+- **CLI publication:** compile and package the public framework artifacts locally,
+  then upload that exact bounded archive. The command does not upload the complete
+  working tree, `.env` files, reports, or runtime data.
+- **Source draft:** select reviewed Tool packages and download ordinary Firedrill
+  source before explicitly publishing it. Publishing queues a build; it does not
+  create a session or silently change an environment.
+
+## Hosted authoring agent
+
+The optional hosted Firedrill Agent can inspect one exact connected repository
+revision and prepare a source proposal. Its turns and progress events are retained.
+The resulting proposal contains compiler diagnostics, changed files, and an
+integrity-checked diff.
+
+Review the proposal before publishing it as a pull request. The agent cannot merge
+the pull request, bypass Tool approval, or change an environment directly. A
+proposal is not a build, and a build is not a passing drill.
+
+## Immutable builds
+
+A successful build has a content-addressed `sha256:` hash. It contains the verified
+compiled world, lock data, and exact Tool artifacts needed by the runtime. Builds
+are immutable; change source to produce a new build.
+
+Introducing a private Tool artifact does not approve it for execution. A project
+manager must review and approve its exact artifact. Deprecation prevents new use;
+revocation propagates a block to affected execution paths.
+
+## Environments select future sessions
+
+An environment points future sessions at one immutable build. Promotion changes
+that pointer with optimistic concurrency. Existing sessions and sealed runs keep
+their original build identity.
+
+An environment may follow successful builds from one connected repository branch.
+Following is explicit and can be stopped. Failed builds do not replace the selected
+build.
+
+```text
+repository revision or CLI archive
+                │
+                ▼
+        verified build attempt
+                │
+                ▼
+      immutable sha256 build
+                │
+                ▼
+ environment selects future sessions
+```
+
+## Review before execution
+
+Before using a new build:
+
+1. Inspect its source provenance and diagnostics.
+2. Review introduced Tool artifacts and their declared operations.
+3. Approve only the exact artifacts you trust.
+4. Promote an environment with its current expected version.
+5. Create a session and choose baseline, scenario, or drill setup explicitly.
+
+<Warning>
+  Build success means the source compiled and the hosted build was accepted. It
+  does not prove Tool fidelity, approve new behavior, run an agent, or pass a drill.
+</Warning>

@@ -1,0 +1,82 @@
+---
+title: "Firedrill Cloud"
+description: "Run the same Firedrill worlds with managed infrastructure, retained evidence, collaboration, and CI integration."
+---
+
+<Note>
+  Firedrill Cloud is in private preview. Preview access, production endpoints, and
+  hosted SDK packages are not generally available yet.
+</Note>
+
+Firedrill Cloud operates the same world model as the local framework. It adds
+managed builds, isolated sessions, durable run history, evidence retention,
+project access, and GitHub integration.
+
+**Firedrill runs the world, not your agent.** Your agent stays in your application,
+test runner, or CI job. When a drill needs an agent interaction, Firedrill issues a
+short-lived, actor-scoped binding. Your runner passes that binding through the
+agent's existing test configuration and returns the actual result.
+
+## Local and hosted share one model
+
+| Capability | Local framework | Firedrill Cloud |
+| --- | --- | --- |
+| Tool contracts and behavior | Runs on your machine | Runs in an isolated managed world |
+| Starting data, scenarios, actors, and drills | Repository-owned | Compiled from an immutable uploaded or connected revision |
+| Agent execution | Your process | Your process |
+| State reset and deterministic seed | Included | Included, with managed session lifecycle |
+| Results | Project-local HTML, JSON, JSONL, and JUnit | Retained history, comparisons, access control, and downloadable evidence |
+| Collaboration | Share repository files and report bundles | Projects, roles, audit history, and controlled run links |
+
+## Hosted workflow
+
+<Steps>
+  <Step title="Create or connect a project">
+    A project contains repository sources, builds, environments, sessions, runs,
+    and access grants. Organization membership does not automatically grant access
+    to every project.
+  </Step>
+  <Step title="Produce an immutable build">
+    Connect a repository revision, publish a local build, or publish a reviewed
+    source draft. The build pipeline verifies and compiles the selected source.
+  </Step>
+  <Step title="Point an environment at a build">
+    An environment pins future sessions to one build. It can also follow successful
+    builds from an explicitly connected repository branch.
+  </Step>
+  <Step title="Start a session or drill run">
+    A session is one isolated world. A drill run uses a drill-configured session,
+    waits for your runner when agent work is required, then evaluates the world's
+    recorded consequences.
+  </Step>
+  <Step title="Inspect retained evidence">
+    Review assertions, state changes, Tool calls, callbacks, pending work, optional
+    captures, reruns, and comparisons without relying on the agent's self-report.
+  </Step>
+</Steps>
+
+## What Cloud adds
+
+<CardGroup cols={2}>
+  <Card title="Managed worlds" icon="server" href="/cloud/sessions">
+    Create, reset, snapshot, fork, extend, and destroy isolated sessions.
+  </Card>
+  <Card title="Retained results" icon="clock-rotate-left" href="/cloud/runs-evidence">
+    Search run history, reproduce pinned inputs, compare evidence, and retain captures.
+  </Card>
+  <Card title="Repository automation" icon="github" href="/cloud/github">
+    Build exact connected revisions and run checks from CI without long-lived GitHub secrets.
+  </Card>
+  <Card title="Organization controls" icon="shield" href="/cloud/security">
+    Scope project access, credentials, Tool approval, retention, and audit history.
+  </Card>
+</CardGroup>
+
+The private preview also includes an optional hosted authoring agent. It works on
+an exact connected revision and produces a reviewable, compiler-validated source
+proposal. A human chooses whether to publish that proposal as a pull request.
+
+<Tip>
+  You do not need Cloud to define a Tool, run a drill, inspect a result, or generate
+  a local report. Start with the [local quickstart](/quickstart).
+</Tip>

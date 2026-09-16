@@ -1,0 +1,64 @@
+---
+title: "Drills and runs"
+description: "Turn an agent task into a repeatable behavioral test."
+---
+
+A **drill** is an executable behavioral test. It selects starting conditions and an agent target, gives the agent a task, and declares what observable consequences must hold.
+
+A **run** is one recorded execution of a drill. Multiple trials, retries, or seeds produce distinct attempts and evidence.
+
+```yaml
+schemaVersion: 1
+id: set-record-once
+title: Set the requested record once
+targetId: local-agent
+scenarioId: empty
+actorId: operator
+task:
+  instruction: Set the primary record to the requested value.
+  input:
+    value: 7
+assertions:
+  - id: write-once
+    kind: operation.count
+    operation:
+      packageId: records
+      operationId: records.set
+    outcomes: [ok]
+    comparison: { operator: equals, value: 1 }
+  - id: final-value
+    kind: state.value
+    packageId: records
+    namespace: records
+    rowId: primary
+    path: [value]
+    comparison: { operator: equals, value: 7 }
+```
+
+## Assert on consequences
+
+Firedrill can assert on:
+
+- final state values and record counts;
+- operation counts, arguments, outcomes, denials, and ordering;
+- emitted events and received callbacks;
+- faults and virtual-time behavior;
+- invariants at checkpoints during a longer drill.
+
+The target's return value is retained as evidence, but it does not determine the verdict.
+
+## Trials, retries, and long-running work
+
+Use trials to observe stochastic agent behavior across fresh isolated worlds. Retries preserve every attempt instead of hiding failures. A drill may also contain multiple ordered interactions and invariant checkpoints over a long virtual-time horizon; it still uses the same world, evidence, and assertion model.
+
+```bash
+firedrill run set-record-once --trials 5 --seed 42
+```
+
+## Suites and selection
+
+Suites group drills for conformance or a product area. Tags, filters, and deterministic shards help select work in local development and CI.
+
+<Card title="Run your first drill" icon="play" href="/guides/run-first-drill">
+  Define a target, task, assertions, and readable failure.
+</Card>

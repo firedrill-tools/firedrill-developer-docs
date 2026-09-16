@@ -1,0 +1,90 @@
+---
+title: "Authentication"
+description: "Authenticate browser, CLI, service, and CI callers without exposing control authority to the agent under test."
+---
+
+<Note>
+  Control API access is currently limited to the Firedrill Cloud private preview.
+</Note>
+
+Most Control API endpoints require an opaque bearer credential:
+
+```http
+Authorization: Bearer <control-credential>
+```
+
+Treat the credential as a secret. Do not put it in source files, command arguments,
+world definitions, captures, or agent prompts.
+
+## Choose the right credential
+
+| Caller | Credential path | Notes |
+| --- | --- | --- |
+| Hosted web application | Browser identity exchange | The app exchanges verified identity for a revocable Firedrill session |
+| Interactive CLI | Device login and CLI exchange | The CLI stores refresh and control credentials in the OS keychain; there is no plaintext fallback |
+| Developer automation | Developer credential | Explicit actions, optional project scope, and fixed expiry |
+| Service automation | Service credential | Explicit actions, optional project scope, and fixed expiry |
+| GitHub Actions | OIDC exchange | Short-lived credential bound to a verified workflow invocation and exact revision |
+
+Developer and service credentials reveal their secret only when created. Store it
+in a secret manager and revoke it when no longer needed. Listing credentials never
+returns the secret.
+
+## SDK configuration
+
+<CodeGroup>
+```ts TypeScript
+import { FiredrillClient } from "@firedrill/cloud";
+
+const client = new FiredrillClient({
+  token: process.env.FIREDRILL_CREDENTIAL,
+  baseUrl: process.env.FIREDRILL_API_URL,
+});
+```
+
+```python Python
+import os
+from firedrill_cloud import Firedrill
+
+client = Firedrill(
+    token=os.environ["FIREDRILL_CREDENTIAL"],
+    base_url=os.environ.get("FIREDRILL_API_URL", "https://api.firedrill.run"),
+)
+```
+</CodeGroup>
+
+The Cloud SDK packages shown here are unpublished private-preview release candidates.
+
+## Control credentials are not world credentials
+
+A control credential can create or inspect resources allowed by its actions. An
+agent should receive only a `HostedAccessBundle` issued for one ready session or
+one pending drill interaction.
+
+The binding includes:
+
+- exact session, environment, and build identity;
+- one declared actor;
+- allowed Tool operations;
+- short-lived HTTP and optional MCP connection details; and
+- a separate world credential with its own expiry.
+
+It cannot manage projects, read another session, create credentials, or access
+billing. Never replace this boundary by passing the Control API client into the
+agent.
+
+## Expiry and revocation
+
+Browser and CLI sessions can be listed and revoked. Developer and service
+credentials have an explicit expiry and can be revoked individually. Session
+destruction or run completion bounds world access; previously issued bindings also
+carry their own expiry.
+
+If a request returns `401`, do not blindly retry with the same expired or revoked
+credential. Refresh through the supported login flow or create a new explicitly
+authorized credential.
+
+<Warning>
+  Identity-provider access tokens are accepted only at the browser or CLI exchange
+  boundary. Do not use them as general Control API credentials.
+</Warning>

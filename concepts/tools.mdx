@@ -1,0 +1,78 @@
+---
+title: "Tools"
+description: "Model an agent dependency as callable behavior backed by controlled state."
+---
+
+A **Tool** is a synthetic dependency with typed operations, deterministic behavior, and optional state, faults, events, callbacks, custom routes, and browser UI.
+
+## Why Tools exist
+
+An agent often acts through APIs, MCP servers, command-line programs, SDK functions, or web interfaces. Replacing only the response text does not capture stateful consequences. A Firedrill Tool owns both the callable contract and what happens to the synthetic world when that contract is used.
+
+```yaml
+schemaVersion: 1
+module: ./behavior.js
+manifest:
+  schemaVersion: 1
+  id: records
+  version: 1.0.0
+  engine: ">=0.1.0 <0.2.0"
+  capabilities: [state.read, state.write]
+  state:
+    - namespace: records
+      schema:
+        type: object
+        required: [value]
+        properties:
+          value: { type: integer }
+        additionalProperties: false
+  operations:
+    - id: records.set
+      inputSchema:
+        type: object
+        required: [value]
+        properties:
+          value: { type: integer }
+        additionalProperties: false
+      outputSchema:
+        type: object
+        required: [value]
+        properties:
+          value: { type: integer }
+        additionalProperties: false
+      idempotency: required
+      fidelity: stateful
+```
+
+The declaration defines what is callable. Its adjacent JavaScript or TypeScript behavior module implements the deterministic effect on state.
+
+## One behavior, several interfaces
+
+Direct, HTTP, MCP, and spawned CLI bindings adapt to the same semantic operation. A Tool may also declare custom HTTP routes or a same-origin browser app when protocol or visual fidelity matters.
+
+| Interface | Use it when |
+| --- | --- |
+| MCP | The agent discovers and calls MCP tools |
+| HTTP | The agent already uses a configurable client or base URL |
+| CLI | The agent invokes local commands |
+| Direct/function | A test runner or module mock calls a function |
+| Browser app | The agent or harness operates a visual interface |
+
+## Tool ownership
+
+Tools can live beside the agent, in a private package, in an independent public package, or in a community catalog. A developer can use a local Tool immediately; contributing it is optional.
+
+<Warning>
+  Local Tool behavior is trusted repository code. Firedrill validates and locks what was selected, but the local runtime is not a sandbox for untrusted packages.
+</Warning>
+
+## Relationship to other concepts
+
+- A [world](/concepts/world-state) selects Tools and gives them shared state, time, and identities.
+- A [scenario](/concepts/scenarios) changes the starting conditions for one use case.
+- A [drill](/concepts/drills-runs) gives an agent a task and asserts on the result.
+- [Evidence](/concepts/evidence-reset) records what the Tool did during a run.
+
+<Card title="Create a Tool" icon="wrench" href="/guides/create-tool-package">
+  Start with a stateful or stateless Tool template and test its contract.
+</Card>
