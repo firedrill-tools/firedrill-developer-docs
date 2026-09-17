@@ -24,7 +24,6 @@ world definitions, captures, or agent prompts.
 | Interactive CLI | Device login and CLI exchange | The CLI stores refresh and control credentials in the OS keychain; there is no plaintext fallback |
 | Developer automation | Developer credential | Explicit actions, optional project scope, and fixed expiry |
 | Service automation | Service credential | Explicit actions, optional project scope, and fixed expiry |
-| GitHub Actions | OIDC exchange | Short-lived credential bound to a verified workflow invocation and exact revision |
 
 Developer and service credentials reveal their secret only when created. Store it
 in a secret manager and revoke it when no longer needed. Listing credentials never
