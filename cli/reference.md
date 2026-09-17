@@ -185,9 +185,9 @@ Usage:
   firedrill browser run --url <url> --task <task> --agent --allow-model [options]
   firedrill browser verify <report-directory> [--root <path>] [--json]
 
-Install once: pnpm add -D @firedrill/browser-tests
+Install once: pnpm add -D @firedrill-tools/browser-tests@next
 Browser install: pnpm dlx playwright@1.62.1 install chromium
-For the optional task driver: pnpm add -D @firedrill/agent
+For the optional task driver: pnpm add -D @firedrill-tools/agent@next
 
 Options:
   --root <path>             Project directory; defaults to the current directory
@@ -222,9 +222,9 @@ Usage:
   firedrill browser run --url <url> --task <task> --agent --allow-model [options]
   firedrill browser verify <report-directory> [--root <path>] [--json]
 
-Install once: pnpm add -D @firedrill/browser-tests
+Install once: pnpm add -D @firedrill-tools/browser-tests@next
 Browser install: pnpm dlx playwright@1.62.1 install chromium
-For the optional task driver: pnpm add -D @firedrill/agent
+For the optional task driver: pnpm add -D @firedrill-tools/agent@next
 
 Options:
   --root <path>             Project directory; defaults to the current directory
@@ -259,9 +259,9 @@ Usage:
   firedrill browser run --url <url> --task <task> --agent --allow-model [options]
   firedrill browser verify <report-directory> [--root <path>] [--json]
 
-Install once: pnpm add -D @firedrill/browser-tests
+Install once: pnpm add -D @firedrill-tools/browser-tests@next
 Browser install: pnpm dlx playwright@1.62.1 install chromium
-For the optional task driver: pnpm add -D @firedrill/agent
+For the optional task driver: pnpm add -D @firedrill-tools/agent@next
 
 Options:
   --root <path>             Project directory; defaults to the current directory
@@ -419,8 +419,8 @@ optionally customize it, and start local HTTP, MCP, CLI and inspector interfaces
 No account, model key, agent target, scenario, or drill is needed. Catalog entries
 show only their declared operations and limitations, not full-service emulation.
 Missing packages require installation consent (--install without a TTY).
-Installation pins the resolved package and disables lifecycle scripts; unpublished
-packages may require a separately supplied local package archive.
+Installation pins the resolved package and disables lifecycle scripts; packages
+not present in a registry may require a separately supplied local package archive.
 
 Bare JSON, CI, and piped init remains read-only. --search is always read-only.
 --tool selects a package, catalog id, Git source, or local package directory.
@@ -453,7 +453,7 @@ The inspector compiles repository source, then serves a loopback-only, offline
 UI with World, Drills, and Runs. It reads real local SQLite worlds and verified
 report bundles. Repository source stays authoritative and read-only.
 
-External targets remain owned by the caller. Start @firedrill/inspector from the
+External targets remain owned by the caller. Start @firedrill-tools/inspector from the
 process that supplies the agent callback when you need to run them from the UI.
 Use --no-open for terminal-only launch. JSON mode never opens a browser.
 ```

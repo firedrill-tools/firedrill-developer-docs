@@ -45,10 +45,10 @@ manifest versions must agree. Unknown engine/source versions fail clearly.
 
 Normative machine-readable definitions ship with the implementation:
 
-- `@firedrill/compiler/schema/tool-source`: authored declaration.
-- `@firedrill/compiler/schema/installed-tool-package`: npm metadata envelope.
-- `@firedrill/contracts/schema/tool-package-manifest`: semantic manifest.
-- `@firedrill/cli/schema/tool-index.json`: optional discovery metadata.
+- `@firedrill-tools/compiler/schema/tool-source`: authored declaration.
+- `@firedrill-tools/compiler/schema/installed-tool-package`: npm metadata envelope.
+- `@firedrill-tools/contracts/schema/tool-package-manifest`: semantic manifest.
+- `@firedrill-tools/cli/schema/tool-index.json`: optional discovery metadata.
 
 See [package authoring](/guides/create-tool-package) for the npm envelope, portable suite, and handler semantics, and
 [version compatibility](/reference/compatibility) for independent version boundaries.

@@ -4,22 +4,24 @@ description: "Control hosted worlds and run drills while your TypeScript runner 
 ---
 
 <Note>
-  `@firedrill/cloud` is an unpublished release candidate for the Firedrill Cloud
-  private preview. The eventual runtime requirement is Node.js 20.19 or newer.
+  `@firedrill-tools/cloud` is published on npm for the Firedrill Cloud private
+  preview. It requires Node.js 20.19 or newer and authorized Cloud access.
 </Note>
 
 The generated `FiredrillClient` maps the Control API. Higher-level helpers create
 and control sessions, run drills with a caller-owned agent callback, follow evidence,
 and retain recovery checkpoints.
 
-Preview participants receive installation instructions with their access. The
-reserved package name is `@firedrill/cloud`; it is not currently installable from
-the public npm registry.
+Install the SDK from npm:
+
+```sh
+npm install @firedrill-tools/cloud
+```
 
 ## Configure the client
 
 ```ts
-import { FiredrillClient } from "@firedrill/cloud";
+import { FiredrillClient } from "@firedrill-tools/cloud";
 
 const client = new FiredrillClient({
   token: process.env.FIREDRILL_CREDENTIAL,
@@ -34,7 +36,7 @@ client or credential to the agent under test.
 ## Start an owned world
 
 ```ts
-import { connect, FiredrillClient } from "@firedrill/cloud";
+import { connect, FiredrillClient } from "@firedrill-tools/cloud";
 
 const client = new FiredrillClient({
   token: process.env.FIREDRILL_CREDENTIAL,
@@ -68,7 +70,7 @@ with the same idempotency key instead of issuing a duplicate action.
 ## Run a drill with your agent
 
 ```ts
-import { FiredrillClient, runHostedDrill } from "@firedrill/cloud";
+import { FiredrillClient, runHostedDrill } from "@firedrill-tools/cloud";
 
 const client = new FiredrillClient({
   token: process.env.FIREDRILL_CREDENTIAL,

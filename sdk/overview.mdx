@@ -7,9 +7,9 @@ Firedrill separates the local framework from hosted control clients.
 
 | Package | Language | Use it for | Availability |
 | --- | --- | --- | --- |
-| `@firedrill/sdk` | TypeScript | Create local worlds, run drills, inject test setup, and write local reports | Open-source release candidate; not published yet |
-| `@firedrill/cloud` | TypeScript | Control hosted projects, sessions, runs, evidence, and browser tests | Private-preview release candidate; not published yet |
-| `firedrill-cloud` | Python | Control the same hosted API with synchronous and asynchronous clients | Private-preview release candidate; not published yet |
+| `@firedrill-tools/sdk` | TypeScript | Create local worlds, run drills, inject test setup, and write local reports | Public release candidate on npm (`next`) |
+| `@firedrill-tools/cloud` | TypeScript | Control hosted projects, sessions, runs, evidence, and browser tests | Public package for authorized Cloud preview users |
+| `firedrill-cloud` | Python | Control the same hosted API with synchronous and asynchronous clients | Public PyPI package for authorized Cloud preview users |
 
 <CardGroup cols={3}>
   <Card title="Local TypeScript" icon="laptop-code" href="/sdk/local-typescript">
@@ -46,6 +46,6 @@ Generated files carry API provenance and should not be edited manually. The help
 layer does not reimplement authorization, world behavior, compilation, or verdicts.
 
 <Note>
-  Installation commands on the Cloud SDK pages describe the package names reserved
-  for release. The packages are not available from npm or PyPI yet.
+  Public package installation does not grant Cloud access. Hosted API credentials
+  are issued separately to authorized preview accounts.
 </Note>
