@@ -4,16 +4,18 @@ description: "Control hosted worlds from synchronous or asynchronous Python code
 ---
 
 <Note>
-  `firedrill-cloud` is an unpublished release candidate for the Firedrill Cloud
-  private preview. It requires Python 3.10 or newer.
+  `firedrill-cloud` is published on PyPI for the Firedrill Cloud private preview.
+  It requires Python 3.10 or newer and authorized Cloud access.
 </Note>
 
 The package exposes generated `Firedrill` and `AsyncFiredrill` clients plus
 handwritten lifecycle, drill-run, evidence, capture, and source-control helpers.
 
-Preview participants receive installation instructions with their access. The
-reserved distribution name is `firedrill-cloud`; it is not currently installable
-from the public Python package index.
+Install the SDK from PyPI:
+
+```sh
+pip install firedrill-cloud
+```
 
 ## Start an owned world
 

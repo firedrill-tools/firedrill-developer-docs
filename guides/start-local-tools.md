@@ -11,15 +11,18 @@ Everything here runs locally without an account or Docker. Tools are trusted tes
 code, not sandboxed code. Only the optional authoring assistant needs a model key.
 The agent you test keeps its own model/provider configuration.
 
-## Use this release candidate
+## Install this release candidate
 
-Packages are not published yet. In a checkout of the Firedrill repository, run
-`pnpm install` then `pnpm build`. You can now target your actual agent project:
+In the project that contains your agent, install the CLI locally:
 
 ```sh
-node /absolute/path/to/firedrill/packages/cli/dist/bin.js --root /absolute/path/to/your-agent init
-node /absolute/path/to/firedrill/packages/cli/dist/bin.js --root /absolute/path/to/your-agent serve
+npm install --save-dev @firedrill-tools/cli@next
+npx firedrill init
+npx firedrill serve
 ```
+
+The commands below use `firedrill` for readability. Prefix them with `npx` when
+you have not added a package-manager script or shell alias.
 
 Replace those two absolute paths with your checkouts. Alternatively, define
 `alias firedrill='node /absolute/path/to/firedrill/packages/cli/dist/bin.js'` in
@@ -38,12 +41,9 @@ firedrill init
 The terminal offers real catalog tools and an option to create your own. A pack
 lists its actual supported operations and limitations. Installing a catalog pack
 requires permission and uses the package manager with lifecycle scripts disabled.
-An installed pack is selected without downloading it again. Missing or unpublished
-packages produce a clear installation error; Firedrill never substitutes a sample
+An installed pack is selected without downloading it again. Missing packages
+produce a clear installation error; Firedrill never substitutes a sample
 and calls it compatible.
-
-This release is unpublished. Authorized source checkouts and reviewed packed
-artifacts are available now; registry publication is separate.
 
 For coding agents and scripts:
 
@@ -82,7 +82,7 @@ Use the defaults, edit the repository files, ask your own coding agent, or choos
 - **Your coding agent:** setup installs the canonical skill and a repository
   brief. Ask it to prepare tools for your actual agent. Detection is a hint, not
   proof of the interfaces your agent uses.
-- **Firedrill Agent:** the optional `@firedrill/agent` package uses Claude Agent SDK
+- **Firedrill Agent:** the optional `@firedrill-tools/agent` package uses Claude Agent SDK
   with `ANTHROPIC_API_KEY` from your shell or secret manager. It explains source
   transmission and spending before starting from the wizard. No key is requested
   in a text prompt or written to source. If the key/package is missing, the CLI

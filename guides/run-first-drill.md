@@ -5,7 +5,14 @@ description: "Connect an existing agent to an isolated world, run a behavioral t
 
 This guide explains Firedrill's repository contract. The files belong beside the agent code, can be reviewed in pull requests, and work without an account.
 
-The npm packages are still an unpublished release candidate. After an authorized publication, the normal project-local installation will be `npm install --save-dev @firedrill/cli`, followed by `npx firedrill init`. Until then, use a reviewed packed release artifact or an authorized framework source checkout. The exact available flags are documented in the [CLI reference](/cli/reference).
+Install the current release candidate in the project that contains your agent:
+
+```sh
+npm install --save-dev @firedrill-tools/cli@next
+npx firedrill init
+```
+
+The exact available flags are documented in the [CLI reference](/cli/reference).
 
 For your existing agent, start with [local tools](/guides/start-local-tools):
 
@@ -53,7 +60,7 @@ firedrill init --path coding-agent
 
 The explicit `--path firedrill-agent` and `--path coding-agent` forms install the
 same skill and repository brief under `.agents/`. Firedrill Agent uses the
-separately installed `@firedrill/agent` and your `ANTHROPIC_API_KEY`; its default
+separately installed `@firedrill-tools/agent` and your `ANTHROPIC_API_KEY`; its default
 task is preparing tools, not inventing a test suite. The template path remains an
 explicit complete runnable example. The legacy manual path creates a world shell
 and probe tool; prefer `--custom <id>` for an editable stateful backend. Existing
@@ -174,7 +181,7 @@ const result = await runDrills({
 });
 ```
 
-The `setup` object is serialized, normalized, hashed, and compiled into a derived immutable build. It may add or replace starting state rows and actors, set virtual time, activate declared faults, append initial events, select installed Tool packages, point one declared Tool at a repository-owned behavior module, and map temporary bindings onto names the agent already understands. It never writes those choices back to YAML, JSON, or SQLite behind the report. Command targets receive binding aliases automatically; caller-owned targets pass `binding.environment` through the agent's existing configuration seam. Unsupported protocol mappings fail before agent execution. Full details are in the [`@firedrill/sdk` guide](/sdk/local-typescript#per-test-synthetic-data-and-tools).
+The `setup` object is serialized, normalized, hashed, and compiled into a derived immutable build. It may add or replace starting state rows and actors, set virtual time, activate declared faults, append initial events, select installed Tool packages, point one declared Tool at a repository-owned behavior module, and map temporary bindings onto names the agent already understands. It never writes those choices back to YAML, JSON, or SQLite behind the report. Command targets receive binding aliases automatically; caller-owned targets pass `binding.environment` through the agent's existing configuration seam. Unsupported protocol mappings fail before agent execution. Full details are in the [`@firedrill-tools/sdk` guide](/sdk/local-typescript#per-test-synthetic-data-and-tools).
 
 HTTP-bound agents can discover loaded operations at `GET $FIREDRILL_HTTP_URL/v1/tools`
 and call one at `POST /v1/operations/{packageId}/{operationId}` with bearer
@@ -228,11 +235,11 @@ A coding agent should begin with `.agents/firedrill/BRIEF.md` and `.agents/skill
 The optional local Firedrill Agent follows that same skill rather than a private format:
 
 ```sh
-pnpm add -D @firedrill/agent
+pnpm add -D @firedrill-tools/agent@next
 export ANTHROPIC_API_KEY=your_key
 firedrill agent
 ```
 
 It uses the Claude Agent SDK with the developer's key. It may send selected repository content to Anthropic under Anthropic's applicable terms, but sends nothing to Firedrill Cloud. Repository discovery/search skips known secret and generated paths; file edits stay inside the selected repository; shell, generic web, Git publication, and subagents are disabled. A run defaults to 40 turns, a $2 spend ceiling, and a 15-minute deadline. These controls reduce accidental exposure but do not sandbox ordinary repository code that the Agent authors and later executes. Review its diff as you would any coding-agent change. The compiler and drill runner—not the Agent's narrative—remain the authority.
 
-Published JSON Schemas are available from `@firedrill/compiler/schema/*` and `@firedrill/contracts/schema/*`. Source diagnostics include stable codes, file locations, paths, and corrective suggestions for machine use.
+Published JSON Schemas are available from `@firedrill-tools/compiler/schema/*` and `@firedrill-tools/contracts/schema/*`. Source diagnostics include stable codes, file locations, paths, and corrective suggestions for machine use.

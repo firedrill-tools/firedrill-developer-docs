@@ -4,7 +4,8 @@ description: "Handle canonical API errors, transport timeouts, asynchronous oper
 ---
 
 <Note>
-  The Cloud SDKs are unpublished private-preview release candidates.
+  The Cloud SDKs are published for preview users. API access still requires an
+  authorized Firedrill Cloud account and credential.
 </Note>
 
 The Control API returns a canonical error envelope:
@@ -40,7 +41,7 @@ import {
   FiredrillError,
   FiredrillTimeoutError,
   FiredrillClient,
-} from "@firedrill/cloud";
+} from "@firedrill-tools/cloud";
 
 try {
   await new FiredrillClient({ token }).projectsList();

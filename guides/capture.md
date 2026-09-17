@@ -90,7 +90,7 @@ not code to add to the production agent:
 
 ```ts
 import { chromium } from "playwright";
-import { runDrills } from "@firedrill/sdk";
+import { runDrills } from "@firedrill-tools/sdk";
 import { createCapturedPage } from "./test-support/playwright-capture.mjs";
 
 const browser = await chromium.launch();
