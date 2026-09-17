@@ -7,7 +7,7 @@ This is a Mintlify documentation site. Pages are MDX with YAML frontmatter; site
 - Firedrill is a stateful simulation and testing framework for action-taking AI agents.
 - Lead with the tool-first path: add or create Tools, start the synthetic environment, connect the existing agent, then add drills when behavior should become repeatable.
 - Firedrill runs controlled worlds, not customer agents. Users keep their existing model, application, and runner.
-- The complete individual-developer loop is local. Hosted features add managed operation, history, replay, sharing, teams, GitHub automation, retention, and attestation.
+- The complete individual-developer loop is local. Hosted features add managed operation, history, replay, sharing, teams, retention, and attestation.
 - Never document a planned feature as available. Label release candidates, previews, and unpublished packages clearly.
 - Never present an example Tool, vendor, agent type, or fixture as the product model.
 - Demo delivery is v2 and must not appear as a current capability.
