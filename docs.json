@@ -93,7 +93,6 @@
               "cloud/projects-builds",
               "cloud/sessions",
               "cloud/runs-evidence",
-              "cloud/github",
               "cloud/security"
             ]
           },
