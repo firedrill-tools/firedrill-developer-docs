@@ -4,7 +4,7 @@ description: "Control hosted worlds and run drills while your TypeScript runner 
 ---
 
 <Note>
-  `@firedrill-tools/cloud` is published on npm for the Firedrill Cloud private
+  `@firedrill-run/cloud` is published on npm for the Firedrill Cloud private
   preview. It requires Node.js 20.19 or newer and authorized Cloud access.
 </Note>
 
@@ -15,13 +15,13 @@ and retain recovery checkpoints.
 Install the SDK from npm:
 
 ```sh
-npm install @firedrill-tools/cloud
+npm install @firedrill-run/cloud
 ```
 
 ## Configure the client
 
 ```ts
-import { FiredrillClient } from "@firedrill-tools/cloud";
+import { FiredrillClient } from "@firedrill-run/cloud";
 
 const client = new FiredrillClient({
   token: process.env.FIREDRILL_CREDENTIAL,
@@ -36,7 +36,7 @@ client or credential to the agent under test.
 ## Start an owned world
 
 ```ts
-import { connect, FiredrillClient } from "@firedrill-tools/cloud";
+import { connect, FiredrillClient } from "@firedrill-run/cloud";
 
 const client = new FiredrillClient({
   token: process.env.FIREDRILL_CREDENTIAL,
@@ -70,7 +70,7 @@ with the same idempotency key instead of issuing a duplicate action.
 ## Run a drill with your agent
 
 ```ts
-import { FiredrillClient, runHostedDrill } from "@firedrill-tools/cloud";
+import { FiredrillClient, runHostedDrill } from "@firedrill-run/cloud";
 
 const client = new FiredrillClient({
   token: process.env.FIREDRILL_CREDENTIAL,
