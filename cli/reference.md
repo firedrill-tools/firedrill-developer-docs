@@ -185,9 +185,9 @@ Usage:
   firedrill browser run --url <url> --task <task> --agent --allow-model [options]
   firedrill browser verify <report-directory> [--root <path>] [--json]
 
-Install once: pnpm add -D @firedrill-tools/browser-tests@next
+Install once: pnpm add -D @firedrill-run/browser-tests@next
 Browser install: pnpm dlx playwright@1.62.1 install chromium
-For the optional task driver: pnpm add -D @firedrill-tools/agent@next
+For the optional task driver: pnpm add -D @firedrill-run/agent@next
 
 Options:
   --root <path>             Project directory; defaults to the current directory
@@ -222,9 +222,9 @@ Usage:
   firedrill browser run --url <url> --task <task> --agent --allow-model [options]
   firedrill browser verify <report-directory> [--root <path>] [--json]
 
-Install once: pnpm add -D @firedrill-tools/browser-tests@next
+Install once: pnpm add -D @firedrill-run/browser-tests@next
 Browser install: pnpm dlx playwright@1.62.1 install chromium
-For the optional task driver: pnpm add -D @firedrill-tools/agent@next
+For the optional task driver: pnpm add -D @firedrill-run/agent@next
 
 Options:
   --root <path>             Project directory; defaults to the current directory
@@ -259,9 +259,9 @@ Usage:
   firedrill browser run --url <url> --task <task> --agent --allow-model [options]
   firedrill browser verify <report-directory> [--root <path>] [--json]
 
-Install once: pnpm add -D @firedrill-tools/browser-tests@next
+Install once: pnpm add -D @firedrill-run/browser-tests@next
 Browser install: pnpm dlx playwright@1.62.1 install chromium
-For the optional task driver: pnpm add -D @firedrill-tools/agent@next
+For the optional task driver: pnpm add -D @firedrill-run/agent@next
 
 Options:
   --root <path>             Project directory; defaults to the current directory
@@ -453,7 +453,7 @@ The inspector compiles repository source, then serves a loopback-only, offline
 UI with World, Drills, and Runs. It reads real local SQLite worlds and verified
 report bundles. Repository source stays authoritative and read-only.
 
-External targets remain owned by the caller. Start @firedrill-tools/inspector from the
+External targets remain owned by the caller. Start @firedrill-run/inspector from the
 process that supplies the agent callback when you need to run them from the UI.
 Use --no-open for terminal-only launch. JSON mode never opens a browser.
 ```
