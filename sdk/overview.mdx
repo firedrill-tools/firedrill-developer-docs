@@ -1,6 +1,6 @@
 ---
 title: "SDK overview"
-description: "Choose the local TypeScript API or a private-preview Cloud control client for TypeScript and Python."
+description: "Choose a local TypeScript or Python SDK, or a control client for managed Firedrill Cloud worlds."
 ---
 
 Firedrill separates the local framework from hosted control clients.
@@ -8,12 +8,16 @@ Firedrill separates the local framework from hosted control clients.
 | Package | Language | Use it for | Availability |
 | --- | --- | --- | --- |
 | `@firedrill-run/sdk` | TypeScript | Create local worlds, run drills, inject test setup, and write local reports | Public release candidate on npm (`next`) |
+| `firedrill-run` | Python | Local CLI, pytest integration, worlds, drills, browser tests, inspector, and reports | Release-candidate wheel; PyPI release pending |
 | `@firedrill-run/cloud` | TypeScript | Control hosted projects, sessions, runs, evidence, and browser tests | Public package for authorized Cloud preview users |
 | `firedrill-cloud` | Python | Control the same hosted API with synchronous and asynchronous clients | Public PyPI package for authorized Cloud preview users |
 
-<CardGroup cols={3}>
+<CardGroup cols={2}>
   <Card title="Local TypeScript" icon="laptop-code" href="/sdk/local-typescript">
     Run the complete individual-developer loop on your machine.
+  </Card>
+  <Card title="Local Python" icon="python" href="/sdk/local-python">
+    Use Python, pytest, and the bundled CLI without installing Node.js.
   </Card>
   <Card title="Cloud TypeScript" icon="code" href="/sdk/cloud-typescript">
     Use the generated Control API client and hosted lifecycle helpers.
@@ -23,9 +27,13 @@ Firedrill separates the local framework from hosted control clients.
   </Card>
 </CardGroup>
 
+For local Python tests, install `firedrill-run` and import `firedrill`.
+`firedrill-cloud` is a separate hosted control client; it does not start the local
+runtime or inspector. Both use the same Tool definitions and world semantics.
+
 ## The agent stays yours
 
-Neither SDK embeds or hosts the agent you are testing. The local SDK invokes the
+Neither the local nor Cloud SDK hosts the agent you are testing. The local SDK invokes the
 target you declare or the callback you supply. The Cloud SDK coordinates a managed
 world and gives your runner a short-lived binding when agent work is required.
 

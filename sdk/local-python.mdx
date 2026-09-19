@@ -1,0 +1,340 @@
+---
+title: "Local Python SDK"
+description: "Run synthetic Tools, agent drills, pytest tests, and the inspector from Python."
+---
+
+Use `firedrill-run` to test an agent locally. The package provides the `firedrill`
+command, synchronous and asynchronous Python APIs, pytest fixtures, browser tests,
+and local reports. Python imports use `firedrill`.
+
+This is different from [the Cloud Python SDK](/sdk/cloud-python), which manages
+remote worlds through a hosted API.
+
+## Install
+
+Requires Python 3.10 or newer. The platform wheel includes the local runtime,
+CLI, Tool protocols, and inspector. No separate Node.js or npm installation is
+required.
+
+Release wheels target macOS 13 or newer on Apple Silicon and Intel, Linux with
+glibc 2.35 or newer on x86_64 and ARM64, and Windows x64. This release does not
+include Alpine/musl or Windows ARM wheels.
+
+<Note>
+  The local Python package is a release candidate. Its PyPI release is pending.
+  Use a supplied wheel matching your operating system and architecture; do not
+  install the unrelated package named `firedrill`.
+</Note>
+
+From the directory containing that single wheel:
+
+<CodeGroup>
+```sh macOS / Linux
+python -m pip install ./firedrill_run-*.whl pytest
+firedrill --help
+```
+
+```powershell Windows PowerShell
+python -m pip install (Get-ChildItem -File firedrill_run-*.whl).FullName pytest
+firedrill --help
+```
+</CodeGroup>
+
+After the PyPI release is available, the registry installation command will be:
+
+```sh
+python -m pip install --pre "firedrill-run[pytest]"
+```
+
+You can also invoke the installed CLI as `python -m firedrill`.
+
+## Try a drill
+
+In an empty directory:
+
+```sh
+firedrill init --path template
+firedrill validate
+firedrill run changes-resource
+firedrill inspect
+```
+
+The starter agent changes a synthetic record from `0` to `7`. Its **drill** is
+the task plus assertions checking what happened. A **run** is one execution and
+its recorded result. The example checks that the operation ran once and the
+record ended at `7`; it is an installation example, not a live-model test.
+
+To see a failure, change the `value-changed` assertion in
+`firedrill/drills/changes-resource.drill.yaml` to expect `8`. Leave the task input
+at `7`, then run the drill again. The command exits with code `1`, and the report
+shows expected `8`, actual `7`. Restore the assertion afterwards.
+
+`firedrill inspect` starts the inspector and opens the project and saved results.
+Stop it with Ctrl+C. The static report index is
+`.firedrill/reports/index.html` and needs no running server.
+
+## Start with Tools
+
+A **Tool** is a synthetic dependency with operations and state. Start its backend
+without a drill when you only need a controlled dependency for your agent:
+
+```sh
+firedrill tool list
+firedrill tool search gmail
+firedrill tool add @firedrill-tools/gmail --install
+firedrill serve
+```
+
+Use an initialized project for these commands. The CLI shows the connection
+settings and any browser app links. Python uses the same Tool packages as
+TypeScript; you do not need separate Python copies. Tool installation uses the
+package manager included in the wheel.
+
+Tools can come from the catalog, your repository, or independent packages.
+Their declarations use JSON/YAML and their behavior modules use
+JavaScript/TypeScript. Your Python agent connects through HTTP, MCP, CLI, browser,
+or a test-side function mock. See [Tool installation](/guides/install-tools).
+
+## Use pytest
+
+Keep your application and test setup separate:
+
+```text
+your-project/
+  pyproject.toml
+  src/your_agent/
+  tests/test_agent.py
+  firedrill.json
+  firedrill/
+    world.yaml
+    tools/
+    scenarios/
+    targets/
+    drills/
+  .firedrill/          # generated state and reports; Git-ignored
+```
+
+The installed package registers pytest fixtures automatically. In the initialized
+starter project, save this as `tests/test_agent.py`:
+
+```python
+def test_record_changes(firedrill):
+    firedrill.run("changes-resource").assert_passed()
+```
+
+Run it with `python -m pytest`. The fixture finds `firedrill.json` above the test
+file. Use `--firedrill-root` to select another project.
+
+| Fixture | Provides |
+| --- | --- |
+| `firedrill` | Project handle with `run()`, `run_async()`, `world`, and `listen()` |
+| `firedrill_world` | An isolated world, closed after the test |
+| `firedrill_binding` | Actor-scoped protocol endpoints, closed after the test |
+
+Use `@pytest.mark.firedrill(root=".", scenario="baseline", actor_id="operator")`
+to configure a standalone fixture world. The selected names must exist in your
+project. Drill execution uses the drill's own starting conditions; marker `drill`
+and `seed` settings also provide defaults for `firedrill.run()`.
+
+## Connect your Python agent
+
+You do not need to import Firedrill into production agent code. Supply its
+existing connection configuration from a test adapter, or mock the function
+where your agent imports it.
+
+Declare an external target in `firedrill/targets/my-agent.target.yaml` and set
+your drill's `targetId` to `my-agent`:
+
+```yaml
+schemaVersion: 1
+target:
+  id: my-agent
+  kind: external
+  bindings:
+    - http
+    - mcp
+  timeoutMs: 120000
+```
+
+The following adapter assumes your own `your_agent.run_agent` accepts an
+instruction and environment mapping. Match that call to your existing agent API:
+
+```python
+from firedrill import run_drills
+from your_agent import run_agent
+
+
+def invoke(request):
+    return run_agent(
+        instruction=request.task.instruction,
+        environment=request.binding.environment,
+    )
+
+
+result = run_drills(root=".", drill="my-drill", agent=invoke)
+result.assert_passed()
+```
+
+The binding contains the declared protocol's `FIREDRILL_HTTP_URL` and token,
+`FIREDRILL_MCP_URL` and token, or CLI equivalents. Your process retains its model
+credentials. These bindings do not intercept arbitrary hardcoded network calls.
+
+For an asynchronous agent, use `run_drills_async` with an `async def` callback
+and await both the agent and the runner. The callback runs on your event loop.
+
+Use a command target for a separate process. It must read an invocation as JSON
+on stdin and return a JSON value on stdout; logs go to stderr. An arbitrary
+script with a different interface needs a test-owned adapter. See
+[connecting an agent](/guides/connect-agent).
+
+### Mock an imported function
+
+For a direct binding, declare `bindings: [direct]` on the external target.
+`mock_tool` replaces the name used by your agent, like `unittest.mock.patch`:
+
+```python
+from firedrill import mock_tool
+from your_agent import run_agent
+
+
+def invoke(request):
+    with mock_tool(
+        "your_agent.write_record",
+        request.binding.world,
+        package_id="resource-store",
+        operation_id="records.set",
+        arguments=lambda value: {"value": value},
+    ) as write_record:
+        output = run_agent(request.task.instruction)
+        write_record.assert_called_once()
+        return output
+```
+
+This example maps your agent's `write_record(value)` function to the starter
+Tool's operation. Pass `invoke` to `run_drills` as above. Calls execute the real
+synthetic behavior and appear in the evidence. Async functions are supported;
+`transform` can map the result to your provider's response or exception type.
+
+Mocks are scoped to the current thread and async context. An agent-created
+thread without inherited context calls the original dependency. Use
+`contextvars.copy_context().run` in test-owned thread entry points, or protocol
+bindings for an agent that manages its own threads. `asyncio.to_thread` copies
+the context automatically. Function mocking is not a network sandbox.
+
+### Control repeatability
+
+`run_drills` and `run_drills_async` accept `suite`, `tags`, `filter`, `shard`,
+`trials`, `retries`, `concurrency`, `seed`, `build_hash`, `run_directory`, and
+`report_directory`. `setup` overrides one selected drill's starting data, faults,
+Tool behavior, or connection aliases without editing source files.
+
+Use `hooks` for `before_all`, `after_all`, `before_drill`, `after_drill`,
+`before_trial`, `after_trial`, `attempt_started`, and `attempt_finished`.
+Python option envelopes use snake_case; source definitions, operation arguments,
+and user data preserve their exact JSON keys.
+
+## Control a world directly
+
+A **world** is the isolated environment holding your Tools and synthetic state.
+For the starter project:
+
+```python
+from firedrill import World
+
+with World.from_project(".", seed="42") as world:
+    rows = world.state(package_id="resource-store", namespace="records")
+    assert rows[0].value["value"] == 0
+
+    with world.listen(actor_id="operator") as binding:
+        with world.inspect(binding=binding) as inspector:
+            print(inspector.url)
+            input("Press Enter to close the environment. ")
+
+    world.reset()
+```
+
+Use `async with await AsyncWorld.from_project(...)` for asyncio. Its methods,
+bindings, and inspector are awaitable. Context managers close listeners and
+processes; generated files remain in the project.
+
+| Method | Purpose |
+| --- | --- |
+| `describe()`, `metadata()` | Inspect build, actors, and Tool contracts |
+| `call(...)` | Invoke a Tool operation as a declared actor |
+| `state(...)`, `evidence(...)` | Read paginated records and ordered activity |
+| `faults()`, `set_fault(...)` | Inspect or toggle declared faults |
+| `scheduled_events()`, `callbacks()` | Inspect pending activity and deliveries |
+| `advance_time(to_us)` | Advance virtual time and process due events |
+| `reset()` | Restore full initial world state |
+| `reset(packages=[...])` | Restore selected Tools |
+| `export_scenario(...)`, `save_scenario(...)` | Capture current data as reusable scenario source |
+
+A full reset restores baseline state, clock, randomness, and journal. A scoped
+reset retains other Tools, global time, and earlier evidence. Binding URLs
+survive reset. Restart read cursors when `describe().generation` changes.
+Neither reset changes saved reports or your agent's own database.
+
+## Read results and capture files
+
+Failed assertions return a result with a failing verdict. `result.assert_passed()`
+raises an assertion error containing that result and the report path. Source and
+configuration failures raise `FiredrillError`, with `code`, `details`, and
+compiler `diagnostics`.
+
+Use `result.report_index` for the central HTML report. Each run retains HTML,
+JSON, JUnit XML, ordered evidence, and selected attachments. `verify_report`,
+`compare_runs`, and `compare_run_details` read and verify these bundles.
+See [reading results](/guides/results).
+
+Opt in to logs or media with `capture` policies: `off`, `always`, or
+`retain-on-failure`. Your callback can call `capture.log`, `capture.file`,
+`capture.screenshot`, `capture.video`, or `capture.register_driver`. `attach`
+retains a selected project file independently of capture policies. Await these
+calls in async callbacks.
+
+Your harness must create the screenshot or recording; attaching a path does not
+start a recorder. Review captured content before sharing. Captures support the
+assertions; they do not replace them. See [captures](/guides/capture).
+
+## Browser tests
+
+Install Chromium once:
+
+```sh
+firedrill browser install
+```
+
+On Linux, `firedrill browser install --with-deps` also installs required system
+libraries and may require administrator privileges.
+
+`firedrill.browser` provides `run_browser_test` and `run_browser_test_async`,
+saved-definition helpers, report verification, and report bundling. Definitions
+use the same steps and assertions described in [browser testing](/guides/browser-testing).
+Pass `headless=False` to watch, or use `on_event` and `on_frame` for progress.
+A Python driver can control the browser with `observe()` and `step()`.
+
+Browser assertions check the UI. To also assert on synthetic Tool state, invoke
+the browser harness inside a drill's agent callback and connect the application
+using that callback's binding. A flow with no assertions is `completed`, not
+`passed`.
+
+## Optional Firedrill Agent
+
+The `agent` extra provides the Claude Agent SDK companion. Before registry
+publication, install it from the directory containing your release wheel:
+
+```sh
+python -m pip install --find-links . "firedrill-run[agent]==0.1.0rc1"
+firedrill init --path firedrill-agent
+firedrill agent
+```
+
+Set `ANTHROPIC_API_KEY` in your terminal environment before invoking it. The CLI
+does not load `.env` automatically. Model calls incur your provider's charges.
+The agent authors test source; review its changes. It does not decide drill
+verdicts.
+
+The extra also enables `run_browser_agent_test` for task-driven browser testing.
+It uses your model key and still needs independent assertions to decide pass or
+fail. To use your existing coding agent instead, run
+`firedrill init --path coding-agent`. See [Firedrill Agent](/guides/firedrill-agent).
