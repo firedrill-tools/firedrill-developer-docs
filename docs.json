@@ -150,6 +150,12 @@
             ]
           },
           {
+            "group": "Local Python SDK",
+            "pages": [
+              "sdk/local-python"
+            ]
+          },
+          {
             "group": "Cloud SDKs",
             "pages": [
               "sdk/cloud-typescript",
