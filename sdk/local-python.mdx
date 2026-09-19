@@ -21,29 +21,16 @@ glibc 2.35 or newer on x86_64 and ARM64, and Windows x64. This release does not
 include Alpine/musl or Windows ARM wheels.
 
 <Note>
-  The local Python package is a release candidate. Its PyPI release is pending.
-  Use a supplied wheel matching your operating system and architecture; do not
-  install the unrelated package named `firedrill`.
+  The local Python package is a release candidate published as `firedrill-run`.
+  Python imports use `firedrill`. Do not install the unrelated PyPI package
+  named `firedrill`.
 </Note>
 
-From the directory containing that single wheel:
-
-<CodeGroup>
-```sh macOS / Linux
-python -m pip install ./firedrill_run-*.whl pytest
-firedrill --help
-```
-
-```powershell Windows PowerShell
-python -m pip install (Get-ChildItem -File firedrill_run-*.whl).FullName pytest
-firedrill --help
-```
-</CodeGroup>
-
-After the PyPI release is available, the registry installation command will be:
+Install from PyPI into your project's virtual environment:
 
 ```sh
 python -m pip install --pre "firedrill-run[pytest]"
+firedrill --help
 ```
 
 You can also invoke the installed CLI as `python -m firedrill`.
@@ -81,14 +68,16 @@ without a drill when you only need a controlled dependency for your agent:
 ```sh
 firedrill tool list
 firedrill tool search gmail
-firedrill tool add @firedrill-tools/gmail --install
+firedrill init --tool @firedrill-tools/gmail --install
 firedrill serve
 ```
 
-Use an initialized project for these commands. The CLI shows the connection
-settings and any browser app links. Python uses the same Tool packages as
-TypeScript; you do not need separate Python copies. Tool installation uses the
-package manager included in the wheel.
+Run these commands from your agent's repository. `init` adds the selected Tool
+and starting data without changing your agent code. For an existing Firedrill
+project, add more Tools with `firedrill tool add <package> --install`.
+The CLI shows connection settings and any browser app links. Python uses the
+same Tool packages as TypeScript; you do not need separate Python copies.
+Tools install on demand using the installer included in the Python package.
 
 Tools can come from the catalog, your repository, or independent packages.
 Their declarations use JSON/YAML and their behavior modules use
@@ -320,11 +309,10 @@ using that callback's binding. A flow with no assertions is `completed`, not
 
 ## Optional Firedrill Agent
 
-The `agent` extra provides the Claude Agent SDK companion. Before registry
-publication, install it from the directory containing your release wheel:
+The `agent` extra provides the Claude Agent SDK companion:
 
 ```sh
-python -m pip install --find-links . "firedrill-run[agent]==0.1.0rc1"
+python -m pip install --pre "firedrill-run[agent]"
 firedrill init --path firedrill-agent
 firedrill agent
 ```
